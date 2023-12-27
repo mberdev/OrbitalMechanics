@@ -1,0 +1,45 @@
+{
+    "universe": {
+        "id": "universe00",
+        "displayName": "Universe 00",
+        "description": "...",
+        "fixedOrbitFunctions": [
+            {
+                "type": "OFFSET",
+                "offsetX": 0,
+                "offsetY": 0,
+                "offsetZ": 0
+            }
+        ],
+        "children": [
+            {
+                "id": "sun",
+                "displayName": "The sun",
+                "description": "...",
+                "fixedOrbitFunctions": [
+                    {
+                        "type": "OFFSET",
+                        "offsetX": 0,
+                        "offsetY": 0,
+                        "offsetZ": 0
+                    }
+                ],
+                "children": [
+                    {
+                        "id": "earth",
+                        "displayName": "The Earth",
+                        "description": "...",
+                        "fixedOrbitFunctions": [
+                            {
+                                "type": "ELLIPSIS",
+                                "offsetX": 0,
+                                "offsetY": 0,
+                                "offsetZ": 0
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+}

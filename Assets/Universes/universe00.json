@@ -3,6 +3,7 @@
         "id": "universe00",
         "displayName": "Universe 00",
         "description": "...",
+        "diameter": 0.001,
         "fixedOrbitFunctions": [
             {
                 "type": "OFFSET",
@@ -16,6 +17,7 @@
                 "id": "sun",
                 "displayName": "The sun",
                 "description": "...",
+                "diameter": 5.0,
                 "fixedOrbitFunctions": [
                     {
                         "type": "OFFSET",
@@ -29,12 +31,29 @@
                         "id": "earth",
                         "displayName": "The Earth",
                         "description": "...",
+                        "diameter": 2.0,
                         "fixedOrbitFunctions": [
                             {
                                 "type": "ELLIPSIS",
-                                "offsetX": 0,
+                                "offsetX": 10,
                                 "offsetY": 0,
                                 "offsetZ": 0
+                            }
+                        ],
+                        "children": [
+                            {
+                                "id": "moon",
+                                "displayName": "The Moon",
+                                "description": "...",
+                                "diameter": 0.4,
+                                "fixedOrbitFunctions": [
+                                    {
+                                        "type": "ELLIPSIS",
+                                        "offsetX": 4,
+                                        "offsetY": 0,
+                                        "offsetZ": 0
+                                    }
+                                ]
                             }
                         ]
                     }

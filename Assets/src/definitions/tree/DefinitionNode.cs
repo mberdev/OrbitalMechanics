@@ -9,6 +9,7 @@ namespace Assets.src.definitions
         public string Id { get; set; } = string.Empty;
         public string? DisplayName { get; set; }
         public string? Description { get; set; }
+        public float Diameter { get; set; }
         public List<FixedOrbitFunction>? FixedOrbitFunctions { get; set; }
         public List<DefinitionNode>? Children { get; set; }
     }

@@ -33,7 +33,6 @@ public class InitBehaviour : MonoBehaviour
     }
     private void Start()
     {
-        Debug.Log("Hello, world");
         
     }
 

@@ -6,6 +6,7 @@
         "diameter": 0.001,
         "fixedOrbitFunctions": [
             {
+                "id": "universeOffset0",
                 "type": "OFFSET",
                 "offsetX": 0,
                 "offsetY": 0,
@@ -20,6 +21,7 @@
                 "diameter": 5.0,
                 "fixedOrbitFunctions": [
                     {
+                        "id": "sunOffset0",
                         "type": "OFFSET",
                         "offsetX": 0,
                         "offsetY": 0,
@@ -34,6 +36,7 @@
                         "diameter": 2.0,
                         "fixedOrbitFunctions": [
                             {
+                                "id": "earthEllipsis0",
                                 "type": "ELLIPSIS",
                                 "offsetX": 10,
                                 "offsetY": 0,
@@ -48,6 +51,7 @@
                                 "diameter": 0.4,
                                 "fixedOrbitFunctions": [
                                     {
+                                        "id": "moonEllipsis0",
                                         "type": "ELLIPSIS",
                                         "offsetX": 4,
                                         "offsetY": 0,

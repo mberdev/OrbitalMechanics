@@ -9,7 +9,7 @@ namespace Assets.src.definitions
 
     public sealed class DefinitionsParser
     {
-        public static DefinitionRoot[] Parse(string[] json)
+        public static JsonDefinitionRoot[] Parse(string[] json)
         {
 
 
@@ -23,7 +23,7 @@ namespace Assets.src.definitions
                     }
                 };
 
-                return JsonConvert.DeserializeObject<DefinitionRoot>(data, settings);
+                return JsonConvert.DeserializeObject<JsonDefinitionRoot>(data, settings);
             }).ToArray();
 
         }

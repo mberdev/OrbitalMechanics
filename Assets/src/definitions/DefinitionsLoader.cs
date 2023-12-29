@@ -5,16 +5,10 @@ namespace Assets.src.definitions
 {
     public sealed class DefinitionsLoader
     {
-        private readonly string _definitionsPath;
-
-        public DefinitionsLoader(string definitionsPath)
+        public JsonDefinitionRoot[] LoadAllDefinitions()
         {
-            _definitionsPath = definitionsPath;
-        }
 
-        public DefinitionRoot[] LoadAllDefinitions()
-        {
-            var json = FilesLoader.LoadFiles(_definitionsPath);
+            var json = FilesLoader.LoadAllJsonFiles("Assets", "Universes");
             return DefinitionsParser.Parse(json);
         }
     }

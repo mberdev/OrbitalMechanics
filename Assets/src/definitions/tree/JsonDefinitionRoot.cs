@@ -3,10 +3,10 @@ using Newtonsoft.Json;
 
 namespace Assets.src.definitions
 {
-    public sealed class DefinitionRoot
+    public sealed class JsonDefinitionRoot
     {
         [JsonProperty("universe")]
-        public DefinitionNode Universe { get; set; }
+        public JsonDefinitionNode Universe { get; set; }
     }
 
 }

@@ -77,11 +77,10 @@ public class UI : MonoBehaviour
         {
             gotValidated = false;
 
-            Engine.Instance.Time.ChangeTime_Instantaneous(TimeMs);
             _previousTimeMs = TimeMs;
 
             // TODO: only when needed
-            GenerateGlobalSnapshot();
+            //GenerateGlobalSnapshot();
 
 
             return;
@@ -107,12 +106,12 @@ public class UI : MonoBehaviour
 
     }
 
-    public void GenerateGlobalSnapshot()
-    {
-        // Temporary : Generate global snapshot (here?)
-        var snapshot = GlobalSnapshot.Create(Engine.Instance.Definition, TimeMs);
+    //public void GenerateGlobalSnapshot()
+    //{
+    //    // Temporary : Generate global snapshot (here?)
+    //    var snapshot = GlobalSnapshot.Create(Engine.Instance.Definition, TimeMs);
 
-        var snapshotNode = SnapshotsManager.Instance.GetOrCreateSnapshotNode(snapshot.TimeMs.ToString());
-        snapshotNode.Generate(snapshot);
-    }
+    //    var snapshotNode = SnapshotsManager.Instance.GetOrCreateSnapshotNode(snapshot.TimeMs.ToString());
+    //    snapshotNode.Generate(snapshot);
+    //}
 }

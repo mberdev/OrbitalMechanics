@@ -26,7 +26,7 @@ namespace Assets.src.definitions.tree
         /// Same as Traverse but lets delegate "action" transform each node as it gets traversed
         /// and passes the transformed version to the children. 
         /// </summary>
-        public static void Traverse_PassParent<T>(JsonDefinitionNode node, Func<JsonDefinitionNode, T?, T> action, T parent)
+        public static void Traverse_PassParent<T>(JsonDefinitionNode node, Func<JsonDefinitionNode, T, T> action, T parent)
         {
             T transformedNode = action(node, parent);
             if (node.Children != null)

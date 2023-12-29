@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System.Linq;
-
+using System.Threading.Tasks;
 
 namespace Assets.src.definitions
 {
@@ -9,10 +9,10 @@ namespace Assets.src.definitions
 
     public sealed class DefinitionsParser
     {
-        public static JsonDefinitionRoot[] Parse(string[] json)
+        public static async Task<JsonDefinitionRoot[]> ParseAsync(string[] json)
         {
 
-
+            //TODO: Parallelize and/or async (damn Newtonsoft!)
             return json.ToList().Select(data =>
             {
                 var settings = new JsonSerializerSettings
@@ -53,12 +53,15 @@ namespace Assets.src.definitions
         //        {
         //            PropertyNameCaseInsensitive = true
         //        };
-        //        return JsonSerializer.DeserializeAsync<DefinitionRoot>(stream, options);
+        //        return System.Text.Json.JsonSerializer.DeserializeAsync<DefinitionRoot>(stream, options);
         //    });
 
 
-        //    return Task.WhenAll(tasks.Select(t => t.AsTask())).Result;
+        //    //    return Task.WhenAll(tasks.Select(t => t.AsTask()))
+        //              .Result;
+        //              .GetAwaiter().GetResult();
 
+        //    //}
         //}
     }
 }

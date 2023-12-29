@@ -35,7 +35,7 @@ public class OldUniverseState : MonoBehaviour
         
         // Earth
         var earthOrbitNode = new OrbitNode(sunOrbitNode, "Earth orbit");
-        var ellipsis = new Ellipse_XZ( 50.0f, 10.0f, new Vector2(0,0), 20.0f );
+        var ellipsis = new Ellipse_XZ( 50.0f, 10.0f, 20.0f );
         earthOrbitNode.Modifiers.Add(new EllipsisOrbitModifier_XZ(ellipsis));
         var earthMesh = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         earthMesh.name = "Earth";
@@ -45,7 +45,7 @@ public class OldUniverseState : MonoBehaviour
         
         // Moon      
         var moonOrbit = new OrbitNode(earthOrbitNode, "Moon orbit");
-        ellipsis = new Ellipse_XZ( 3.0f, 1.5f, new Vector2(0,0), 5.0f );
+        ellipsis = new Ellipse_XZ( 3.0f, 1.5f, 5.0f );
         moonOrbit.Modifiers.Add(new EllipsisOrbitModifier_XZ(ellipsis));
         var moonMesh = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         moonMesh.name = "Moon";

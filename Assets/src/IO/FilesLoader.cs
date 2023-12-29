@@ -26,7 +26,7 @@ namespace Assets.src.IO
             return path;
 
         }
-        public static string[] LoadAllJsonFiles(string path1, string? path2 = null, string? path3 = null)
+        public static async Task<string[]> LoadAllJsonFilesAsync(string path1, string? path2 = null, string? path3 = null)
         {
             var directoryPath = PathToSubFolder(path1, path2, path3);
 
@@ -35,13 +35,17 @@ namespace Assets.src.IO
                 .Where(f => f.EndsWith(".json"))
                 .ToArray();
 
-            return LoadFiles(jsonFiles);
+            return await LoadFilesAsync(jsonFiles);
         }
 
-        public static string[] LoadFiles(string[] filesPaths)
+        public static async Task<string[]> LoadFilesAsync(string[] filesPaths)
         {
             // TODO : Parallelize
-            return filesPaths.Select(filePath => File.ReadAllText(filePath)).ToArray();
+            var tasks =  filesPaths.Select(filePath => File.ReadAllTextAsync(filePath));
+
+            // TODO: Find out why WhenAll hangs Unity.
+            //return await Task.WhenAll(tasks);
+            return tasks.Select(t => t.GetAwaiter().GetResult()).ToArray();
         }
     }
 }

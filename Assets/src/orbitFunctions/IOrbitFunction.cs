@@ -9,8 +9,8 @@ namespace Assets.src.orbitFunctions
 {
     public interface IOrbitFunction
     {
+        public string Id { get; }
         public string Type { get; }
         public Vector3 Offset { get; }
-
     }
 }

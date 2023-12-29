@@ -20,7 +20,7 @@ public class Root : MonoBehaviour
     {
         Instance = this;
 
-        var definitions = new DefinitionsLoader().LoadAllDefinitions();
+        var definitions = new DefinitionsLoader().LoadAllDefinitionsAsync().GetAwaiter().GetResult();
         var definition = definitions[0]; // TODO : ability to choose which.
         CreateGameInstance(definition);
     }

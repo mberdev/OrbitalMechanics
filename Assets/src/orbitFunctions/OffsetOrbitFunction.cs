@@ -9,12 +9,14 @@ namespace Assets.src.orbitFunctions
 {
     internal class OffsetOrbitFunction : IOrbitFunction
     {
+        public string Id { get; }
         public Vector3 Offset { get; }
 
         public string Type => "OFFSET";
 
-        public OffsetOrbitFunction(Vector3 offset)
+        public OffsetOrbitFunction(string id, Vector3 offset)
         {
+            Id = id;
             Offset = offset;
         }
 

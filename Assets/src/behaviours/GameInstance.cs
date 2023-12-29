@@ -42,24 +42,49 @@ public class GameInstance : MonoBehaviour
 
         DefinitionsTraversal.Traverse_PassParent<GameObject>(
             _definition.Universe, 
-            (definition, parent) =>
+            (JsonDefinitionNode definition, GameObject parent) =>
                 {
                     var o = new GameObject(definition.Id);
 
-                    if (parent != null)
-                        o.transform.SetParent(parent.transform);
-                    else // root
-                        o.transform.SetParent(transform);
+                    o.transform.SetParent(parent.transform);
 
                     // TODO: also do "non-fixed" functions (if that's a thing?)
                     //       Check if there's a conflict with fixed functions.
                     if (definition.FixedOrbitFunctions != null)
                     {
                         o.AddComponent<FixedOrbitTimeTracker>();
+
+                        // Add own functions
                         var fixedOrbitTimeTracker = o.GetComponent<FixedOrbitTimeTracker>();
                         fixedOrbitTimeTracker.AddFixedOrbitFunctions(definition.FixedOrbitFunctions);
+                        
+                        // Make the universe track this object.
                         universeTime.AddTimeTracker(fixedOrbitTimeTracker);
+
+                        // Compile ancestors functions
+                        fixedOrbitTimeTracker.CompileFixedOrbitFunctions();
+
+                        // Add mesh
+                        // (TODO : better mesh rendering)
+                        var mesh = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                        mesh.transform.SetParent(o.transform);
+                        mesh.name = $"mesh-{definition.Id}";
+                        var diameter = definition.Diameter;
+                        if (diameter <= 0.0f)
+                        {
+                            Debug.LogError($"Entity {definition.Id} has diameter <= 0.0f");
+                            diameter = 0.1f;
+                        }
+                        mesh.GetComponent<Renderer>().material.color = Color.red;
+                        mesh.transform.localScale = new Vector3(diameter, diameter, diameter);
                     }
+
+
+                    // TODO: also do "non-fixed" functions (if that's a thing?)
+                    //       Check if there's a conflict with fixed functions.
+                    //else if (...) {
+
+                    //}
 
                     //TODO : Add all behaviours
                     // ..
@@ -69,34 +94,6 @@ public class GameInstance : MonoBehaviour
                 },
             gameInstance
         );
-
-        //// Generate meshes
-        //foreach (var entity in snapshot.Entities)
-        //{
-        //    var definition = entity.Value.Definition;
-        //    var mesh = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        //    mesh.transform.SetParent(transform);
-        //    mesh.name = entity.Key;
-        //    var diameter = definition.Diameter;
-        //    if (diameter <= 0.0f)
-        //    {
-        //        Debug.LogError($"Entity {entity.Key} has diameter <= 0.0f");
-        //        diameter = 0.1f;
-        //    }
-
-        //    mesh.transform.localScale = new Vector3(diameter, diameter, diameter);
-
-        //    //TODO : temp : 
-        //    var orbitFunction = definition.FixedOrbitFunctions[0];
-        //    var position = new Vector3(orbitFunction.OffsetX, orbitFunction.OffsetY, orbitFunction.OffsetZ);
-        //    mesh.transform.position = position;
-
-        //    mesh.GetComponent<Renderer>().material.color = Color.red;
-
-        //    //TODO: link back to snapshot entity?
-        //}
-
-
     }
 
     public static void Create(JsonDefinitionRoot definition)

@@ -1,7 +1,10 @@
+#nullable enable
+
 using Assets.src.definitions;
 using Assets.src.orbitFunctions;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -11,8 +14,13 @@ public class FixedOrbitTimeTracker : MonoBehaviour, ITimeTracker
 {
     public long lastTimeUpdateMs { get; private set; } = -1;
 
+    // Same as FixedOrbitTimeTracker, but for all the parents, all the way to root.
+    public List<IOrbitFunction> AncestorsFixedOrbitFunctions { get; private set; } = new();
     public List<IOrbitFunction> FixedOrbitFunctions { get; private set; } = new();
 
+    // Not cached. That's the point.
+    public List<IOrbitFunction> AllFixedOrbitFunctions => AncestorsFixedOrbitFunctions.Concat(FixedOrbitFunctions).ToList();
+    
     // Start is called before the first frame update
     void Start()
     {
@@ -21,28 +29,65 @@ public class FixedOrbitTimeTracker : MonoBehaviour, ITimeTracker
 
     public void UpdateTime(long timeMs)
     {
-        // TODO
+        var offset = Vector3.zero;
 
-        //var time = parent
+        // TODO : do this computation with a shader.
+        foreach (var function in AllFixedOrbitFunctions)
+        {
+            switch (function.Type)
+            {
+                case "OFFSET":
+                    offset += ((OffsetOrbitFunction)function).Offset;
+                    break;
+                case "ELLIPSIS_XZ":
+                    var ellipsisXZ = (EllipsisXZOrbitFunction)function;
+                    offset += ellipsisXZ.Offset;
+                    offset += new Vector3(
+                        Ellipse_XZ.LerpEllipseX(timeMs, ellipsisXZ.HorizontalAxisX, ellipsisXZ.Duration),
+                        0.0f, 
+                        Ellipse_XZ.LerpEllipseZ(timeMs, ellipsisXZ.VerticalAxisZ, ellipsisXZ.Duration)
+                    );
+                    break;
+                default:
+                    Debug.LogError($"{nameof(FixedOrbitTimeTracker)}: Unknown function type {function.Type} for function {function.Id}");
+                    break;
+            }
+        }
 
-
-        //// var lastDelta = _universeTime.LastDelta;
-
-        //foreach (var celestialBody in CelestialBodies.Values)
-        //{
-        //    var orbitNode = celestialBody.OrbitNode;
-
-        //    var x = orbitNode.X(time);
-        //    var y = orbitNode.Y(time);
-        //    var z = orbitNode.Z(time);
-
-        //    var position = new Vector3(x, y, z);
-
-        //    celestialBody.Mesh.transform.position = position;
-
-        //}
+        this.transform.position = offset;
+        
     }
 
+    /// <summary>
+    /// Adds the entire chain of functions all the way up to "root" (the GameInstance, really),
+    /// so that we can calculate the position without any "dependency" to other nodes.
+    /// </summary>
+    public void CompileFixedOrbitFunctions()
+    {
+        // Safety : avoid infinite loop (?)
+        if (this.transform.parent == this.transform.root)
+        {
+            Debug.LogError($"{nameof(FixedOrbitTimeTracker)}: Object {name} should be descending from of a {nameof(GameInstance)} but instead was found at root!");
+            Application.Quit(); // TODO: better error handling.
+        }
+
+        var parent = this.transform.parent;
+        var parentAsTimeTracker = parent.GetComponent<FixedOrbitTimeTracker>();
+
+        // "root" (GameInstance, really)
+        if (parentAsTimeTracker == null)
+        {
+            return;
+        }
+
+        // Add parent's ancestor functions and parent's own functions
+        AncestorsFixedOrbitFunctions.AddRange(parentAsTimeTracker.AncestorsFixedOrbitFunctions);
+        AncestorsFixedOrbitFunctions.AddRange(parentAsTimeTracker.FixedOrbitFunctions); 
+    
+        // Debug only
+        Debug.Log($"{nameof(FixedOrbitTimeTracker)}: Object {name}'s functions compiled. Functions are {string.Join(", ", AllFixedOrbitFunctions.Select(f => f.Id))}");
+    }
+        
     public void AddFixedOrbitFunctions(List<JsonFixedOrbitFunction> functions)
     {
         foreach (var function in functions)
@@ -61,19 +106,11 @@ public class FixedOrbitTimeTracker : MonoBehaviour, ITimeTracker
             switch(function.Type)
             {
                 case "OFFSET":
-                    var offset = new Vector3(
-                        function.OffsetX ?? 0,
-                        function.OffsetY ?? 0,
-                        function.OffsetZ ?? 0
-                    );
-
-                    FixedOrbitFunctions.Add(new OffsetOrbitFunction(offset));
+                    FixedOrbitFunctions.Add(ToOffsetFunction(function));
                     break;
 
-                case "ELLIPSIS":
-                    //TODO
-                    //FixedOrbitFunctions.Add(new EllipsisOrbitFunction());
-                    Debug.LogWarning($"{nameof(FixedOrbitTimeTracker)}: Ellipsis function not implemented yet for function {function.Id}");
+                case "ELLIPSIS_XZ":
+                    FixedOrbitFunctions.Add(ToEllipsisXZFunction(function));
                     break;
 
                 default:
@@ -83,5 +120,69 @@ public class FixedOrbitTimeTracker : MonoBehaviour, ITimeTracker
         }
     }
 
+    // TODO : Move to converter
+    private static OffsetOrbitFunction ToOffsetFunction(JsonFixedOrbitFunction function)
+    {
+        var offset = new Vector3(
+            function.OffsetX ?? 0,
+            function.OffsetY ?? 0,
+            function.OffsetZ ?? 0
+        );
+        var f = new OffsetOrbitFunction(function.Id, offset);
+
+        return f;
+    }
+
+    // TODO : Move to converter
+    private static float GetFloatParam(Dictionary<string, string> d, string paramName)
+    {
+        if (!d.TryGetValue(paramName, out var strValue))
+        {
+            return 0.0f;
+        }
+        if (!float.TryParse(strValue, out var value))
+        {
+            return 0.0f;
+        }
+        return value;
+    }
+
+    // TODO : Move to converter
+    private static EllipsisXZOrbitFunction ToEllipsisXZFunction(JsonFixedOrbitFunction function)
+    {
+        var offset = new Vector3(
+            function.OffsetX ?? 0,
+            function.OffsetY ?? 0,
+            function.OffsetZ ?? 0
+        );
+        if (function.Params == null)
+        {
+            Debug.LogError($"{nameof(ToEllipsisXZFunction)}: {nameof(JsonFixedOrbitFunction.Params)} is missing in function {function.Id}");
+            Application.Quit(); // TODO: better error handling.
+        }
+
+        var horizontalAxisX = GetFloatParam(function.Params!, "horizontalAxisX");
+        if (horizontalAxisX == 0)
+        {
+            Debug.LogError($"{nameof(ToEllipsisXZFunction)}: {nameof(horizontalAxisX)} is missing in function {function.Id}");
+            Application.Quit(); // TODO: better error handling.
+        }
+        var verticalAxisZ = GetFloatParam(function.Params!, "verticalAxisZ");
+        if (verticalAxisZ == 0)
+        {
+            Debug.LogError($"{nameof(ToEllipsisXZFunction)}: {nameof(verticalAxisZ)} is missing in function {function.Id}");
+            Application.Quit(); // TODO: better error handling.
+        }
+        var duration = GetFloatParam(function.Params!, "duration");
+        if (duration == 0)
+        {
+            Debug.LogError($"{nameof(ToEllipsisXZFunction)}: {nameof(duration)} is missing in function {function.Id}");
+            Application.Quit(); // TODO: better error handling.
+        }
+
+        var f = new EllipsisXZOrbitFunction(function.Id, offset, horizontalAxisX, verticalAxisZ, duration);
+
+        return f;
+    }
 
 }

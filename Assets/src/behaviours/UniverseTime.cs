@@ -15,15 +15,19 @@ public class UniverseTime : MonoBehaviour
         Reset();
     }
 
-    public long CurrentTime { get; private set;}
-    public long LastDelta { get; private set;}
-    public float Speed { get; private set;}
+    public long CurrentTimeMs { get; private set;}
+
+    /// <summary>
+    /// Delta-time in-universe, not in Unity.
+    /// </summary>
+    public long fLastDeltaMs { get; private set;}
+    public float fSpeed { get; private set;}
 
     // Reset time
     public void Reset()
     {
-        CurrentTime = 0;
-        Speed = 1.0f;
+        CurrentTimeMs = 0;
+        fSpeed = 1.0f;
     }
 
     public void AddTimeTracker(ITimeTracker timeTracker)
@@ -36,20 +40,32 @@ public class UniverseTime : MonoBehaviour
     {
         // TODO: handle negative speed.
         // TODO: handle negative delta
-        LastDelta = (long)(Speed * UnityEngine.Time.fixedDeltaTime);
+        var deltaMs = (long)(1000.0f * (fSpeed * UnityEngine.Time.fixedDeltaTime));
 
-        CurrentTime += LastDelta;
+        var newTimeMs =  CurrentTimeMs + deltaMs;
 
         // Cannot go further back than beginning of time, duh.
-        if (CurrentTime < 0)
+        if (newTimeMs < 0)
         {
-            CurrentTime = 0;
+            deltaMs = -CurrentTimeMs; // From CurrentTimeMs, backwards to 0
+            newTimeMs = 0;
         }
 
-        foreach (var timeTracker in TimeTrackers)
+        CurrentTimeMs = newTimeMs;
+        fLastDeltaMs = deltaMs;
+
+        // time is not frozen
+        if (deltaMs != 0.0f)
         {
-            timeTracker.UpdateTime(CurrentTime);
+            foreach (var timeTracker in TimeTrackers)
+            {
+                // TODO: this is actually a misuse of delta / current time.
+                // we should rely on something like speed/2. See https://www.youtube.com/watch?v=yGhfUcPjXuE
+                timeTracker.UpdateTime(CurrentTimeMs);
+            }
         }
+
+
     }
 
 }

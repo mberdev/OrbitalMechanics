@@ -43,9 +43,9 @@ public class FixedOrbitTimeTracker : MonoBehaviour, ITimeTracker
                     var ellipsisXZ = (EllipsisXZOrbitFunction)function;
                     offset += ellipsisXZ.Offset;
                     offset += new Vector3(
-                        Ellipse_XZ.LerpEllipseX(timeMs, ellipsisXZ.HorizontalAxisX, ellipsisXZ.Duration),
+                        Ellipse_XZ.LerpEllipseX(timeMs, ellipsisXZ.HorizontalAxisX, ellipsisXZ.DurationMs),
                         0.0f, 
-                        Ellipse_XZ.LerpEllipseZ(timeMs, ellipsisXZ.VerticalAxisZ, ellipsisXZ.Duration)
+                        Ellipse_XZ.LerpEllipseZ(timeMs, ellipsisXZ.VerticalAxisZ, ellipsisXZ.DurationMs)
                     );
                     break;
                 default:
@@ -148,6 +148,20 @@ public class FixedOrbitTimeTracker : MonoBehaviour, ITimeTracker
     }
 
     // TODO : Move to converter
+    private static long GetLongParam(Dictionary<string, string> d, string paramName)
+    {
+        if (!d.TryGetValue(paramName, out var strValue))
+        {
+            return 0;
+        }
+        if (!long.TryParse(strValue, out var value))
+        {
+            return 0;
+        }
+        return value;
+    }
+
+    // TODO : Move to converter
     private static EllipsisXZOrbitFunction ToEllipsisXZFunction(JsonFixedOrbitFunction function)
     {
         var offset = new Vector3(
@@ -173,14 +187,14 @@ public class FixedOrbitTimeTracker : MonoBehaviour, ITimeTracker
             Debug.LogError($"{nameof(ToEllipsisXZFunction)}: {nameof(verticalAxisZ)} is missing in function {function.Id}");
             Application.Quit(); // TODO: better error handling.
         }
-        var duration = GetFloatParam(function.Params!, "duration");
-        if (duration == 0)
+        var durationMs = GetLongParam(function.Params!, "durationMs");
+        if (durationMs == 0)
         {
-            Debug.LogError($"{nameof(ToEllipsisXZFunction)}: {nameof(duration)} is missing in function {function.Id}");
+            Debug.LogError($"{nameof(ToEllipsisXZFunction)}: {nameof(durationMs)} is missing in function {function.Id}");
             Application.Quit(); // TODO: better error handling.
         }
 
-        var f = new EllipsisXZOrbitFunction(function.Id, offset, horizontalAxisX, verticalAxisZ, duration);
+        var f = new EllipsisXZOrbitFunction(function.Id, offset, horizontalAxisX, verticalAxisZ, durationMs);
 
         return f;
     }

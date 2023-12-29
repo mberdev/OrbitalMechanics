@@ -15,17 +15,17 @@ namespace Assets.src.orbitFunctions
         public Vector3 Offset { get; }
         public float HorizontalAxisX { get; }
         public float VerticalAxisZ { get; }
-        public float Duration { get; }
+        public float DurationMs { get; }
 
         public string Type => "ELLIPSIS_XZ";
 
-        public EllipsisXZOrbitFunction(string id, Vector3 offset, float horizontalAxisX, float horizontalAxisZ, float duration)
+        public EllipsisXZOrbitFunction(string id, Vector3 offset, float horizontalAxisX, float horizontalAxisZ, float durationMs)
         {
             Id = id;
             Offset = offset;
             HorizontalAxisX = horizontalAxisX;
             VerticalAxisZ = horizontalAxisZ;
-            Duration = duration;
+            DurationMs = durationMs;
         }
 
     }

@@ -42,9 +42,9 @@
                                 "offsetY": 0,
                                 "offsetZ": 0,
                                 "params": {
-                                    "horizontalAxisX" : 10,
-                                    "verticalAxisZ" : 5,
-                                    "duration" : 20.0
+                                    "horizontalAxisX" : 50.0,
+                                    "verticalAxisZ" : 10.0,
+                                    "durationMs" : 20000
                                 }
                             }
                         ],
@@ -62,9 +62,9 @@
                                         "offsetY": 0,
                                         "offsetZ": 0,
                                         "params": {
-                                            "horizontalAxisX" : 4,
-                                            "verticalAxisZ" : 2,
-                                            "duration" : 5.0
+                                            "horizontalAxisX" : 3.0,
+                                            "verticalAxisZ" : 1.5,
+                                            "durationMs" : 50000
                                         }
                                     }
                                 ]

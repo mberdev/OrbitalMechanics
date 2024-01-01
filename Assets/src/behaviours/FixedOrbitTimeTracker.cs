@@ -1,6 +1,7 @@
 #nullable enable
 
 using Assets.src.definitions;
+using Assets.src.math;
 using Assets.src.orbitFunctions;
 using System.Collections;
 using System.Collections.Generic;
@@ -46,6 +47,17 @@ public class FixedOrbitTimeTracker : MonoBehaviour, ITimeTracker
                         Ellipse_XZ.LerpEllipseX(timeMs, ellipsisXZ.HorizontalAxisX, ellipsisXZ.DurationMs),
                         0.0f, 
                         Ellipse_XZ.LerpEllipseZ(timeMs, ellipsisXZ.VerticalAxisZ, ellipsisXZ.DurationMs)
+                    );
+                    break;
+                case "KEPLER":
+                    var kepler = (KeplerOrbitFunction)function;
+                    offset += kepler.Offset;
+                    // TODO: Snapshot3D
+                    var keplerSnapshot = new Kepler.Snapshot2D(kepler.Kepler, timeMs);
+                    offset += new Vector3(
+                        keplerSnapshot.X,
+                        0.0f,
+                        keplerSnapshot.Z                        
                     );
                     break;
                 default:
@@ -113,6 +125,10 @@ public class FixedOrbitTimeTracker : MonoBehaviour, ITimeTracker
                     FixedOrbitFunctions.Add(ToEllipsisXZFunction(function));
                     break;
 
+                case "KEPLER":
+                    FixedOrbitFunctions.Add(ToKeplerFunction(function));
+                    break;
+
                 default:
                     Debug.LogError($"{nameof(FixedOrbitTimeTracker)}: Unknown function type {function.Type} for function {function.Id}");
                     break;
@@ -146,6 +162,25 @@ public class FixedOrbitTimeTracker : MonoBehaviour, ITimeTracker
         }
         return value;
     }
+
+    private static Dictionary<string, float> GetFloatParams(Dictionary<string, string> d, List<string> paramsNames)
+    {
+        var result = new Dictionary<string, float>();
+        foreach (var paramName in paramsNames)
+        {
+            if (!d.TryGetValue(paramName, out var strValue))
+            {
+                result.Add(paramName, 0.0f);
+            }
+            if (!float.TryParse(strValue, out var value))
+            {
+                result.Add(paramName, 0.0f);
+            }
+            result.Add(paramName, value);
+        }
+        return result;
+    }
+
 
     // TODO : Move to converter
     private static long GetLongParam(Dictionary<string, string> d, string paramName)
@@ -199,4 +234,55 @@ public class FixedOrbitTimeTracker : MonoBehaviour, ITimeTracker
         return f;
     }
 
+
+    // TODO : Move to converter
+    private static KeplerOrbitFunction ToKeplerFunction(JsonFixedOrbitFunction function)
+    {
+        var offset = new Vector3(
+            function.OffsetX ?? 0,
+            function.OffsetY ?? 0,
+            function.OffsetZ ?? 0
+        );
+
+        if (function.Params == null)
+        {
+            Debug.LogError($"{nameof(ToKeplerFunction)}: {nameof(JsonFixedOrbitFunction.Params)} is missing in function {function.Id}");
+            Application.Quit(); // TODO: better error handling.
+        }
+
+        var values = GetFloatParams(
+            function.Params!, 
+            new List<string> {
+                "semiMajorAxis",
+                "excentricity",
+                "inclination",
+                "longitudeOfAscendingNode",
+                "argumentOfPeriapsis",
+                "meanLongitude",           
+            });
+
+
+        if (values["semiMajorAxis"] == 0.0f)
+        {
+            Debug.LogError($"{nameof(ToKeplerFunction)}: {nameof(Kepler.SemiMajorAxis)} is missing in function {function.Id}");
+            Application.Quit(); // TODO: better error handling.
+        }
+
+        // That's a time offset
+        var meanLongitudeMs = GetLongParam(function.Params!, "meanLongitude");
+
+        var kepler = new Kepler(
+            orbiterMass: 1.0f,
+            values["semiMajorAxis"],
+            values["excentricity"],
+            values["inclination"],
+            values["longitudeOfAscendingNode"],
+            values["argumentOfPeriapsis"],
+            meanLongitudeMs
+        );
+
+        var f = new KeplerOrbitFunction(function.Id, offset, kepler);
+
+        return f;
+    }
 }

@@ -70,6 +70,31 @@
                                 ]
                             }
                         ]
+                    },
+
+                    {
+                        "id": "earth_kepler",
+                        "displayName": "The Earth (Kepler)",
+                        "description": "...",
+                        "diameter": 2.0,
+                        "fixedOrbitFunctions": [
+                            {
+                                "id": "earthKepler0",
+                                "type": "KEPLER",
+                                "offsetX": 0,
+                                "offsetY": 0,
+                                "offsetZ": 0,
+                                "params": {
+                                    "semiMajorAxis" : 40.0,
+                                    "excentricity" : 0.5,
+                                    "inclination" : 0.0,
+                                    "longitudeOfAscendingNode" : 10.0,
+                                    "argumentOfPeriapsis" : 10.0,
+                                    "meanLongitude" : 10.0
+                                }
+                            }
+                        ],
+                        "children": []
                     }
                 ]
             }

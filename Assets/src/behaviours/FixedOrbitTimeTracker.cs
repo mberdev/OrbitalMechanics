@@ -1,6 +1,8 @@
 #nullable enable
 
 using Assets.src.definitions;
+using Assets.src.definitions.converters;
+using Assets.src.definitions.tree;
 using Assets.src.math;
 using Assets.src.orbitFunctions;
 using System.Collections;
@@ -118,15 +120,15 @@ public class FixedOrbitTimeTracker : MonoBehaviour, ITimeTracker
             switch(function.Type)
             {
                 case "OFFSET":
-                    FixedOrbitFunctions.Add(ToOffsetFunction(function));
+                    FixedOrbitFunctions.Add(FixedOrbitFunctionsConverter.ToOffsetFunction(function));
                     break;
 
                 case "ELLIPSIS_XZ":
-                    FixedOrbitFunctions.Add(ToEllipsisXZFunction(function));
+                    FixedOrbitFunctions.Add(FixedOrbitFunctionsConverter.ToEllipsisXZFunction(function));
                     break;
 
                 case "KEPLER":
-                    FixedOrbitFunctions.Add(ToKeplerFunction(function));
+                    FixedOrbitFunctions.Add(FixedOrbitFunctionsConverter.ToKeplerFunction(function));
                     break;
 
                 default:
@@ -136,153 +138,4 @@ public class FixedOrbitTimeTracker : MonoBehaviour, ITimeTracker
         }
     }
 
-    // TODO : Move to converter
-    private static OffsetOrbitFunction ToOffsetFunction(JsonFixedOrbitFunction function)
-    {
-        var offset = new Vector3(
-            function.OffsetX ?? 0,
-            function.OffsetY ?? 0,
-            function.OffsetZ ?? 0
-        );
-        var f = new OffsetOrbitFunction(function.Id, offset);
-
-        return f;
-    }
-
-    // TODO : Move to converter
-    private static float GetFloatParam(Dictionary<string, string> d, string paramName)
-    {
-        if (!d.TryGetValue(paramName, out var strValue))
-        {
-            return 0.0f;
-        }
-        if (!float.TryParse(strValue, out var value))
-        {
-            return 0.0f;
-        }
-        return value;
-    }
-
-    private static Dictionary<string, float> GetFloatParams(Dictionary<string, string> d, List<string> paramsNames)
-    {
-        var result = new Dictionary<string, float>();
-        foreach (var paramName in paramsNames)
-        {
-            if (!d.TryGetValue(paramName, out var strValue))
-            {
-                result.Add(paramName, 0.0f);
-            }
-            if (!float.TryParse(strValue, out var value))
-            {
-                result.Add(paramName, 0.0f);
-            }
-            result.Add(paramName, value);
-        }
-        return result;
-    }
-
-
-    // TODO : Move to converter
-    private static long GetLongParam(Dictionary<string, string> d, string paramName)
-    {
-        if (!d.TryGetValue(paramName, out var strValue))
-        {
-            return 0;
-        }
-        if (!long.TryParse(strValue, out var value))
-        {
-            return 0;
-        }
-        return value;
-    }
-
-    // TODO : Move to converter
-    private static EllipsisXZOrbitFunction ToEllipsisXZFunction(JsonFixedOrbitFunction function)
-    {
-        var offset = new Vector3(
-            function.OffsetX ?? 0,
-            function.OffsetY ?? 0,
-            function.OffsetZ ?? 0
-        );
-        if (function.Params == null)
-        {
-            Debug.LogError($"{nameof(ToEllipsisXZFunction)}: {nameof(JsonFixedOrbitFunction.Params)} is missing in function {function.Id}");
-            Application.Quit(); // TODO: better error handling.
-        }
-
-        var horizontalAxisX = GetFloatParam(function.Params!, "horizontalAxisX");
-        if (horizontalAxisX == 0)
-        {
-            Debug.LogError($"{nameof(ToEllipsisXZFunction)}: {nameof(horizontalAxisX)} is missing in function {function.Id}");
-            Application.Quit(); // TODO: better error handling.
-        }
-        var verticalAxisZ = GetFloatParam(function.Params!, "verticalAxisZ");
-        if (verticalAxisZ == 0)
-        {
-            Debug.LogError($"{nameof(ToEllipsisXZFunction)}: {nameof(verticalAxisZ)} is missing in function {function.Id}");
-            Application.Quit(); // TODO: better error handling.
-        }
-        var durationMs = GetLongParam(function.Params!, "durationMs");
-        if (durationMs == 0)
-        {
-            Debug.LogError($"{nameof(ToEllipsisXZFunction)}: {nameof(durationMs)} is missing in function {function.Id}");
-            Application.Quit(); // TODO: better error handling.
-        }
-
-        var f = new EllipsisXZOrbitFunction(function.Id, offset, horizontalAxisX, verticalAxisZ, durationMs);
-
-        return f;
-    }
-
-
-    // TODO : Move to converter
-    private static KeplerOrbitFunction ToKeplerFunction(JsonFixedOrbitFunction function)
-    {
-        var offset = new Vector3(
-            function.OffsetX ?? 0,
-            function.OffsetY ?? 0,
-            function.OffsetZ ?? 0
-        );
-
-        if (function.Params == null)
-        {
-            Debug.LogError($"{nameof(ToKeplerFunction)}: {nameof(JsonFixedOrbitFunction.Params)} is missing in function {function.Id}");
-            Application.Quit(); // TODO: better error handling.
-        }
-
-        var values = GetFloatParams(
-            function.Params!, 
-            new List<string> {
-                "semiMajorAxis",
-                "excentricity",
-                "inclination",
-                "longitudeOfAscendingNode",
-                "argumentOfPeriapsis",
-                "meanLongitude",           
-            });
-
-
-        if (values["semiMajorAxis"] == 0.0f)
-        {
-            Debug.LogError($"{nameof(ToKeplerFunction)}: {nameof(Kepler.SemiMajorAxis)} is missing in function {function.Id}");
-            Application.Quit(); // TODO: better error handling.
-        }
-
-        // That's a time offset
-        var meanLongitudeMs = GetLongParam(function.Params!, "meanLongitude");
-
-        var kepler = new Kepler(
-            orbiterMass: 1.0f,
-            values["semiMajorAxis"],
-            values["excentricity"],
-            values["inclination"],
-            values["longitudeOfAscendingNode"],
-            values["argumentOfPeriapsis"],
-            meanLongitudeMs
-        );
-
-        var f = new KeplerOrbitFunction(function.Id, offset, kepler);
-
-        return f;
-    }
 }

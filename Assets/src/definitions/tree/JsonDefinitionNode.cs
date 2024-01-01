@@ -10,6 +10,7 @@ namespace Assets.src.definitions
         public string? DisplayName { get; set; }
         public string? Description { get; set; }
         public float Diameter { get; set; }
+        public JsonMesh? Mesh { get; set; }
         public List<JsonFixedOrbitFunction>? FixedOrbitFunctions { get; set; }
         public List<JsonDefinitionNode>? Children { get; set; }
     }

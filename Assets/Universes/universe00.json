@@ -3,7 +3,7 @@
         "id": "universe00",
         "displayName": "Universe 00",
         "description": "...",
-        "diameter": 0.001,
+        "mesh": null,
         "fixedOrbitFunctions": [
             {
                 "id": "universeOffset0",
@@ -18,7 +18,13 @@
                 "id": "sun",
                 "displayName": "The sun",
                 "description": "...",
-                "diameter": 5.0,
+                "mesh": {
+                    "type": "SUN",
+                    "params": {
+                        "diameter": 5.0
+                    }
+
+                },
                 "fixedOrbitFunctions": [
                     {
                         "id": "sunOffset0",
@@ -33,7 +39,14 @@
                         "id": "earth",
                         "displayName": "The Earth",
                         "description": "...",
-                        "diameter": 2.0,
+                        "mesh": {
+                            "type": "COLORED_SPHERE",
+                            "params": {
+                                "diameter": 2.0,
+                                "color": "#0000FF"
+                            }
+        
+                        },                       
                         "fixedOrbitFunctions": [
                             {
                                 "id": "earthEllipsis0",
@@ -53,7 +66,14 @@
                                 "id": "moon",
                                 "displayName": "The Moon",
                                 "description": "...",
-                                "diameter": 0.4,
+                                "mesh": {
+                                    "type": "COLORED_SPHERE",
+                                    "params": {
+                                        "diameter": 0.4,
+                                        "color": "#777777"
+                                    }
+                
+                                },                                  
                                 "fixedOrbitFunctions": [
                                     {
                                         "id": "moonEllipsis0",
@@ -76,7 +96,14 @@
                         "id": "earth_kepler",
                         "displayName": "The Earth (Kepler)",
                         "description": "...",
-                        "diameter": 2.0,
+                        "mesh": {
+                            "type": "COLORED_SPHERE",
+                            "params": {
+                                "diameter": 2.0,
+                                "color": "#0000FF"
+                            }
+        
+                        },                          
                         "fixedOrbitFunctions": [
                             {
                                 "id": "earthKepler0",

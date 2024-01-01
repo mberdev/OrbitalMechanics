@@ -1,4 +1,5 @@
 using Assets.src.definitions;
+using Assets.src.definitions.converters;
 using Assets.src.definitions.tree;
 using Assets.src.state2;
 using System;
@@ -65,18 +66,11 @@ public class GameInstance : MonoBehaviour
                         fixedOrbitTimeTracker.CompileFixedOrbitFunctions();
 
                         // Add mesh
-                        // (TODO : better mesh rendering)
-                        var mesh = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                        mesh.transform.SetParent(o.transform);
-                        mesh.name = $"mesh-{definition.Id}";
-                        var diameter = definition.Diameter;
-                        if (diameter <= 0.0f)
+                        var meshDefinition = definition.Mesh;
+                        if (meshDefinition != null)
                         {
-                            Debug.LogError($"Entity {definition.Id} has diameter <= 0.0f");
-                            diameter = 0.1f;
+                            AddMesh(o, definition.Id, meshDefinition);
                         }
-                        mesh.GetComponent<Renderer>().material.color = Color.red;
-                        mesh.transform.localScale = new Vector3(diameter, diameter, diameter);
                     }
 
 
@@ -94,6 +88,57 @@ public class GameInstance : MonoBehaviour
                 },
             gameInstance
         );
+    }
+
+    private void AddMesh(GameObject o, string id, JsonMesh meshDefinition)
+    {
+        GameObject mesh;
+        switch (meshDefinition.Type)
+        {
+            case "COLORED_SPHERE":
+                mesh = CreateSphereMesh(id, meshDefinition);
+                break;
+            case "SUN":
+                mesh = CreateSunMesh(id, meshDefinition);
+                break;
+            default:
+                Debug.LogError($"Unknown mesh type {meshDefinition.Type} for {id}");
+                return;
+        }
+
+        mesh.transform.SetParent(o.transform);
+        mesh.name = id;
+    }
+
+    private GameObject CreateSunMesh(string id, JsonMesh meshDefinition)
+    {
+        var diameter = MeshConverter.ToSun(meshDefinition, id);
+        // (TODO : better mesh rendering)
+        var mesh = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+
+        mesh.GetComponent<Renderer>().material.color = Color.yellow;
+        mesh.transform.localScale = new Vector3(diameter, diameter, diameter);
+
+        return mesh;
+    }
+
+    private GameObject CreateSphereMesh(string id, JsonMesh meshDefinition)
+    {
+        var (diameter, color) = MeshConverter.ToSphere(meshDefinition, id);
+        // (TODO : better mesh rendering)
+        var mesh = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+
+        if (!ColorUtility.TryParseHtmlString(color, out var colorParsed))
+        {
+            Debug.LogError($"Invalid color {color} for {id}");
+            Application.Quit(); // TODO: better error handling.
+        }
+
+        mesh.GetComponent<Renderer>().material.color = colorParsed;
+        mesh.transform.localScale = new Vector3(diameter, diameter, diameter);
+
+        return mesh;
+
     }
 
     public static void Create(JsonDefinitionRoot definition)

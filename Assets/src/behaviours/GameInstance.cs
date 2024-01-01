@@ -107,19 +107,35 @@ public class GameInstance : MonoBehaviour
         }
 
         mesh.transform.SetParent(o.transform);
-        mesh.name = id;
+        mesh.name = $"{id}-mesh";
     }
 
     private GameObject CreateSunMesh(string id, JsonMesh meshDefinition)
     {
         var diameter = MeshConverter.ToSun(meshDefinition, id);
-        // (TODO : better mesh rendering)
-        var mesh = GameObject.CreatePrimitive(PrimitiveType.Sphere);
 
-        mesh.GetComponent<Renderer>().material.color = Color.yellow;
-        mesh.transform.localScale = new Vector3(diameter, diameter, diameter);
+        //var o = new GameObject(id);
+        //o.transform.localScale = new Vector3(diameter, diameter, diameter);
 
-        return mesh;
+        //var particleSystem = o.AddComponent<ParticleSystem>();
+
+        //// TODO: Better sun mesh
+        //var main = particleSystem.main;
+        //main.startColor = new Color(255, 255, 148, 255); // bright yellow
+        //main.duration = 5;
+        //main.startSize = diameter;
+        //main.startLifetime = 5;
+        //main.prewarm = true;
+
+        var o = Instantiate(Root.Instance.sunPrefab);
+
+        //The size is actually decided by the particle system's start size, not the transform.
+        //mesh.transform.localScale = new Vector3(diameter, diameter, diameter);
+        var particleSystem = o.GetComponent<ParticleSystem>();
+        var main = particleSystem.main;
+        main.startSize = diameter;
+
+        return o;
     }
 
     private GameObject CreateSphereMesh(string id, JsonMesh meshDefinition)

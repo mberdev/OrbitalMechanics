@@ -16,6 +16,13 @@ public class Root : MonoBehaviour
     /// </summary>
     public static Root Instance { get; private set; }
 
+    /// <summary>
+    /// Assign this in the editor with your favorite sun prefab.
+    /// TODO: instantiate entirely from code. Why does Unity make it so hard?
+    /// </summary>
+    public GameObject sunPrefab;
+
+
     void Awake()
     {
         Instance = this;

@@ -64,7 +64,8 @@ public class OldUniverseState : MonoBehaviour
     // Unity's fixed update
     void FixedUpdate()
     {
-        var time = _universeTime.CurrentTime;
+        var timeSeconds = _universeTime.CurrentTime;
+        long timeMs = (long)(timeSeconds * 1000);
         // var universeRoot = OrbitNode.UniverseRootNode;
 
         // var lastDelta = _universeTime.LastDelta;
@@ -72,9 +73,10 @@ public class OldUniverseState : MonoBehaviour
         foreach (var celestialBody in CelestialBodies.Values) {
             var orbitNode = celestialBody.OrbitNode;
 
-            var x = orbitNode.X(time);
-            var y = orbitNode.Y(time);
-            var z = orbitNode.Z(time);
+
+            var x = orbitNode.X(timeMs);
+            var y = orbitNode.Y(timeMs);
+            var z = orbitNode.Z(timeMs);
 
             var position = new Vector3(x, y, z);
 

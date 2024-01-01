@@ -13,47 +13,47 @@ public class OrbitNode
     public List<OrbitModifier> Modifiers { get; } = new();
 
     // TODO: Cache X, Y, Z until t changes
-    public float X(float t) {
+    public float X(long timeMs) {
         float x = 0.0f;
 
         if (Parent != null)
         {
-            x += Parent.X(t);
+            x += Parent.X(timeMs);
         }
         
         foreach (var modifier in Modifiers)
         {
-            x += modifier.XOffset(t);
+            x += modifier.XOffset(timeMs);
         }
         return x;
     }
 
-    public float Y(float t) {
+    public float Y(long timeMS) {
         float y = 0.0f;
 
         if (Parent != null)
         {
-            y += Parent.Y(t);
+            y += Parent.Y(timeMS);
         }
 
         foreach (var modifier in Modifiers)
         {
-            y += modifier.YOffset(t);
+            y += modifier.YOffset(timeMS);
         }
         return y;
     }
 
-    public float Z(float t) {
+    public float Z(long timeMs) {
         float z = 0.0f;
 
         if (Parent != null)
         {
-            z += Parent.Z(t);
+            z += Parent.Z(timeMs);
         }
         
         foreach (var modifier in Modifiers)
         {
-            z += modifier.ZOffset(t);
+            z += modifier.ZOffset(timeMs);
         }
         return z;
     }

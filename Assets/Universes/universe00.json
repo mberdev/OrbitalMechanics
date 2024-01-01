@@ -38,12 +38,12 @@
                             {
                                 "id": "earthEllipsis0",
                                 "type": "ELLIPSIS_XZ",
-                                "offsetX": 10,
+                                "offsetX": 0,
                                 "offsetY": 0,
                                 "offsetZ": 0,
                                 "params": {
-                                    "horizontalAxisX" : 50.0,
-                                    "verticalAxisZ" : 10.0,
+                                    "horizontalAxisX" : 35.0,
+                                    "verticalAxisZ" : 15.0,
                                     "durationMs" : 20000
                                 }
                             }
@@ -58,13 +58,13 @@
                                     {
                                         "id": "moonEllipsis0",
                                         "type": "ELLIPSIS_XZ",
-                                        "offsetX": 4,
+                                        "offsetX": 0,
                                         "offsetY": 0,
                                         "offsetZ": 0,
                                         "params": {
                                             "horizontalAxisX" : 3.0,
                                             "verticalAxisZ" : 1.5,
-                                            "durationMs" : 50000
+                                            "durationMs" : 5000
                                         }
                                     }
                                 ]

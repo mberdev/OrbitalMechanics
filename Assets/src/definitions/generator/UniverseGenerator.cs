@@ -15,14 +15,21 @@ namespace Assets.src.definitions.generator
     {
         public static System.Random rnd = new System.Random(0);
 
-        public int Depth { get; set; } = 4;
         public string[] DepthNames { get; } = new string[] { "sun", "planet", "satellite", "asteroid" };
 
-        public int[] DepthCount = new int[] { 1, 20, 100, 10 };
+        public int[] DepthCount = new int[] { 1, 10, 10, 10 };
         public float[] OrbitSemiMajor = new float[] { 0.0f, 20.0f, 5.0f, 2.0f };
 
-        public JsonDefinitionRoot Generate()
+        public (JsonDefinitionRoot root, int count) Generate()
         {
+            int count = 0;
+            if (DepthNames.Length != DepthCount.Length || DepthCount.Length != OrbitSemiMajor.Length)
+            {
+                Debug.LogError("Fix your terrible, terrible hard-coded arrays, mate");
+                Application.Quit();
+                return (null!, count);
+            }
+
             var root = new JsonDefinitionRoot();
             var universe = new JsonDefinitionNode();
             universe.Id = "universe";
@@ -32,10 +39,11 @@ namespace Assets.src.definitions.generator
             root.Universe = universe;
             JsonDefinitionNode sun = MakeSun(diameter: 5.0f);
             universe.Children = new JsonDefinitionNode[] { sun };
+            count += 1;
 
-            GenerateDepth(sun, depth: 1);
+            count += GenerateDepth(sun, depth: 1);
 
-            return root;
+            return (root, count);
         }
 
         private static JsonDefinitionNode MakeSun(float diameter)
@@ -75,13 +83,13 @@ namespace Assets.src.definitions.generator
             };
         }
 
-        private void GenerateDepth(JsonDefinitionNode parent, int depth)
+        private int GenerateDepth(JsonDefinitionNode parent, int depth)
         {
-            if (depth >= Depth)
+            var count = 0;
+
+            if (depth >= DepthCount.Length)
             {
-                Debug.LogError("Depth is too high");
-                Application.Quit();
-                return;
+                return 0;
             }
 
             var standardExcentricity = 0.3f;
@@ -95,11 +103,11 @@ namespace Assets.src.definitions.generator
             var diameterRatio = 6.0f;
             var diameter = (parentDiameter / diameterRatio);
 
-            var count = DepthCount[depth];
+            var countToGenerate = DepthCount[depth];
             var name = DepthNames[depth];
             var semiMajor = OrbitSemiMajor[depth];
 
-            parent.Children = Enumerable.Range(0, count).Select(i =>
+            parent.Children = Enumerable.Range(0, countToGenerate).Select(i =>
             {
                 var randomDiameter = diameter + RandomPercent(diameter, 500); // add 0 to 500%
 
@@ -124,8 +132,14 @@ namespace Assets.src.definitions.generator
 
                 var color = RandomColor();
                 AddSphereMesh(child, randomDiameter, color);
+
+                // Recursion
+                count += (1 + GenerateDepth(child, depth + 1));
+
                 return child;
             }).ToArray();
+
+            return count;
 
         }
 

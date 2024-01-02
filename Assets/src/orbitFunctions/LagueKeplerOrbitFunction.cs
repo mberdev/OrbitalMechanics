@@ -72,7 +72,8 @@ namespace Assets.src.orbitFunctions
             LinearEccentricity = SemiMajorLength - Periapsis; // distance between center of ellipse and focus
             Eccentricity = LinearEccentricity / SemiMajorLength; // from circle to increasingly elliptical
 
-            if (Eccentricity <= 0 || Eccentricity >= 1.0)
+            // 0 is a perfect circle, 1 turns the ellipse into a parabola
+            if (Eccentricity < 0 || Eccentricity >= 1.0)
             {
                 throw new Exception($"Eccentricity value not supported: {Eccentricity}");
             }

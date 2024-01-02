@@ -23,30 +23,40 @@ public class Root : MonoBehaviour
     /// </summary>
     public GameObject sunPrefab;
 
+    public delegate void OnGameCreated(GameInstance? instance, int count);
+    public OnGameCreated onGameCreated;
 
     void Awake()
     {
         Instance = this;
-
-        var definitions = new DefinitionsLoader().LoadAllDefinitionsAsync().GetAwaiter().GetResult();
-        //var definition = definitions[0]; // TODO : ability to choose which.
-
-        //FOR DEBUG: generated definition
-        var definition = new UniverseGenerator().Generate();
-
-        CurrentGameInstance = GameInstance.Create(definition);
     }
 
     private void Start()
     {
-        
+
     }
 
+    // TODO: trigger this from UI
+    private void OnLoadDefinitions()
+    {
+        var definitions = new DefinitionsLoader().LoadAllDefinitionsAsync().GetAwaiter().GetResult();
+        //var definition = definitions[0]; // TODO : ability to choose which.
 
+        //FOR DEBUG: generated definition
+        var (definition, count) = new UniverseGenerator().Generate();
+
+        CurrentGameInstance = GameInstance.Create(definition);
+        onGameCreated?.Invoke(CurrentGameInstance, count);
+    }
 
     // Update is called once per frame
     void Update()
     {
-        
+        // Load once
+        float timeSinceGameStartInSeconds = Time.time;
+        if (timeSinceGameStartInSeconds > 2.0f && CurrentGameInstance == null)
+        { 
+            OnLoadDefinitions();
+        }
     }
 }

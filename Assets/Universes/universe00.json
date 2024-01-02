@@ -145,7 +145,8 @@
                                 "offsetZ": 0,
 
                                     "periapsis": 10.0,
-                                    "apoapsis": 40.0
+                                    "apoapsis": 40.0,
+                                    "durationSeconds": 10.0
                                 
                             }
                         ],

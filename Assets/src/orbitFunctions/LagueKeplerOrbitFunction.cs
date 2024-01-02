@@ -13,6 +13,7 @@ namespace Assets.src.orbitFunctions
         public float? OffsetZ { get; }
         public double Periapsis { get; }
         public double Apoapsis { get; }
+        public int DurationSeconds { get; }
 
         public const string StaticType = "LAGUE_KEPLER";
 
@@ -23,6 +24,7 @@ namespace Assets.src.orbitFunctions
             string id,
             double periapsis, 
             double apoapsis,
+            int durationSeconds,
             float? offsetX = null,
             float? offsetY = null,
             float? offsetZ = null
@@ -32,6 +34,11 @@ namespace Assets.src.orbitFunctions
             OffsetX = offsetX;
             OffsetY = offsetY;
             OffsetZ = offsetZ;
+
+            if (durationSeconds <= 0)
+            {
+                throw new Exception($"{nameof(LagueKeplerOrbitFunction)} ({id}) : missing positive {nameof(durationSeconds)}");
+            }
 
             if (periapsis <= 0 || apoapsis <= 0 )
             {
@@ -45,6 +52,7 @@ namespace Assets.src.orbitFunctions
 
             Periapsis = periapsis;
             Apoapsis = apoapsis;
+            DurationSeconds = durationSeconds;
 
             CalculateSemiConstants();
         }
@@ -56,10 +64,11 @@ namespace Assets.src.orbitFunctions
         public double LinearEccentricity { get; private set; }
         public double Eccentricity { get; private set; }
         public double SemiMinorLength { get; private set; }
+        public double RadiantsPerSecond { get; private set; }
 
         private void CalculateSemiConstants()
         {
-            SemiMajorLength = (Periapsis + Apoapsis) / 2;
+            SemiMajorLength = (Periapsis + Apoapsis) / 2.0;
             LinearEccentricity = SemiMajorLength - Periapsis; // distance between center of ellipse and focus
             Eccentricity = LinearEccentricity / SemiMajorLength; // from circle to increasingly elliptical
 
@@ -69,20 +78,31 @@ namespace Assets.src.orbitFunctions
             }
             SemiMinorLength = Math.Sqrt(Math.Pow(SemiMajorLength, 2) - Math.Pow(LinearEccentricity, 2));
 
+            RadiantsPerSecond = 2.0 * Math.PI / (double)DurationSeconds;
         }
         #endregion
 
-        public long X_FromAngleRadiants(Vector2 centreOfMass, double angleRadiants)
+        public float X_FromAngleRadiants(Vector2 centreOfMass, double angleRadiants)
         {
             var ellipseCenterX = centreOfMass.x + LinearEccentricity;
             //EllipseCenterY = centreOfMass.y;
-            return (long)(SemiMajorLength * Math.Cos(angleRadiants) + ellipseCenterX);
+            var x = SemiMajorLength * Math.Cos(angleRadiants) + ellipseCenterX;
+            //if (x > float.MaxValue)
+            //{
+            //    throw new Exception($"Kepler orbit: X value too large: {x}");
+            //}
+            return (float)x;
         }
 
-        public long Y_FromAngleRadiants(Vector2 centreOfMass, double angleRadiants)
+        public float Y_FromAngleRadiants(Vector2 centreOfMass, double angleRadiants)
         {
             var ellipseCenterY = centreOfMass.y;
-            return (long)(SemiMajorLength * Math.Sin(angleRadiants) + ellipseCenterY);
+            var y = SemiMajorLength * Math.Sin(angleRadiants) + ellipseCenterY;
+            //if (y > float.MaxValue)
+            //{
+            //    throw new Exception($"Kepler orbit: Y value too large: {y}");
+            //}
+            return (float)y;
         }
 
     }

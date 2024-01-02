@@ -72,12 +72,10 @@ public class FixedOrbitTimeTracker : MonoBehaviour, ITimeTracker
 
                 case "LAGUE_KEPLER":
                     var lagueKepler = (LagueKeplerOrbitFunction)function;
-                    //TEST ONLY!
-                    double slowTime2 = timeMs / 1000.0;
-                    //-TEST ONLY!
+
 
                     var centerOfMass = Vector2.zero; // TODO
-                    var angleRadiants = slowTime2; //TODO
+                    var angleRadiants = (timeMs / 1000.0) * lagueKepler.RadiantsPerSecond;
                     offset += new Vector3(
                         lagueKepler.X_FromAngleRadiants(centerOfMass, angleRadiants),
                         0.0f,

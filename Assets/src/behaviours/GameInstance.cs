@@ -1,6 +1,7 @@
 using Assets.src.definitions;
 using Assets.src.definitions.converters;
 using Assets.src.definitions.tree;
+using Assets.src.meshes;
 using Assets.src.state2;
 using System;
 using System.Collections;
@@ -96,10 +97,10 @@ public class GameInstance : MonoBehaviour
         switch (meshDefinition.Type)
         {
             case "COLORED_SPHERE":
-                mesh = CreateSphereMesh(id, meshDefinition);
+                mesh = MeshesGenerator.CreateSphereMesh(id, meshDefinition);
                 break;
             case "SUN":
-                mesh = CreateSunMesh(id, meshDefinition);
+                mesh = MeshesGenerator.CreateSunMesh(id, meshDefinition);
                 break;
             default:
                 Debug.LogError($"Unknown mesh type {meshDefinition.Type} for {id}");
@@ -108,53 +109,6 @@ public class GameInstance : MonoBehaviour
 
         mesh.transform.SetParent(o.transform);
         mesh.name = $"{id}-mesh";
-    }
-
-    private GameObject CreateSunMesh(string id, JsonMesh meshDefinition)
-    {
-        var diameter = MeshConverter.ToSun(meshDefinition, id);
-
-        //var o = new GameObject(id);
-        //o.transform.localScale = new Vector3(diameter, diameter, diameter);
-
-        //var particleSystem = o.AddComponent<ParticleSystem>();
-
-        //// TODO: Better sun mesh
-        //var main = particleSystem.main;
-        //main.startColor = new Color(255, 255, 148, 255); // bright yellow
-        //main.duration = 5;
-        //main.startSize = diameter;
-        //main.startLifetime = 5;
-        //main.prewarm = true;
-
-        var o = Instantiate(Root.Instance.sunPrefab);
-
-        //The size is actually decided by the particle system's start size, not the transform.
-        //mesh.transform.localScale = new Vector3(diameter, diameter, diameter);
-        var particleSystem = o.GetComponent<ParticleSystem>();
-        var main = particleSystem.main;
-        main.startSize = diameter;
-
-        return o;
-    }
-
-    private GameObject CreateSphereMesh(string id, JsonMesh meshDefinition)
-    {
-        var (diameter, color) = MeshConverter.ToSphere(meshDefinition, id);
-        // (TODO : better mesh rendering)
-        var mesh = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-
-        if (!ColorUtility.TryParseHtmlString(color, out var colorParsed))
-        {
-            Debug.LogError($"Invalid color {color} for {id}");
-            Application.Quit(); // TODO: better error handling.
-        }
-
-        mesh.GetComponent<Renderer>().material.color = colorParsed;
-        mesh.transform.localScale = new Vector3(diameter, diameter, diameter);
-
-        return mesh;
-
     }
 
     public static void Create(JsonDefinitionRoot definition)
@@ -170,8 +124,5 @@ public class GameInstance : MonoBehaviour
         var gameInstance = o.GetComponent<GameInstance>();
         //component.enabled = true; // needed?
         gameInstance.PopulateFromDefinition(definition);
-
-
-        //return o;
     }
 }

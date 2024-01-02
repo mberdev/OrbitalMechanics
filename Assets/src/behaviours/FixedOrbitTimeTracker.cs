@@ -51,9 +51,9 @@ public class FixedOrbitTimeTracker : MonoBehaviour, ITimeTracker
                 case "ELLIPSIS_XZ":
                     var ellipsisXZ = (EllipsisXZOrbitFunction)function;
                     offset += new Vector3(
-                        Ellipse_XZ.LerpEllipseX(timeMs, ellipsisXZ.HorizontalAxisX, ellipsisXZ.DurationMs),
+                        ellipsisXZ.LerpEllipseX(timeMs),
                         0.0f,
-                        Ellipse_XZ.LerpEllipseZ(timeMs, ellipsisXZ.VerticalAxisZ, ellipsisXZ.DurationMs)
+                        ellipsisXZ.LerpEllipseZ(timeMs)
                     );
                     break;
                 case "KEPLER":
@@ -72,8 +72,17 @@ public class FixedOrbitTimeTracker : MonoBehaviour, ITimeTracker
 
                 case "LAGUE_KEPLER":
                     var lagueKepler = (LagueKeplerOrbitFunction)function;
-                    //TODO
-                    throw new System.NotImplementedException();
+                    //TEST ONLY!
+                    double slowTime2 = timeMs / 1000.0;
+                    //-TEST ONLY!
+
+                    var centerOfMass = Vector2.zero; // TODO
+                    var angleRadiants = slowTime2; //TODO
+                    offset += new Vector3(
+                        lagueKepler.X_FromAngleRadiants(centerOfMass, angleRadiants),
+                        0.0f,
+                        lagueKepler.Y_FromAngleRadiants(centerOfMass, angleRadiants)
+                    );
                     break;
 
                 default:

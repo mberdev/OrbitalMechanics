@@ -43,5 +43,15 @@ namespace Assets.src.orbitFunctions
             DurationMs = durationMs;
         }
 
+        public float LerpEllipseX(long timeMs)
+        {
+            return (HorizontalAxisX * Mathf.Cos((timeMs / DurationMs) * Mathf.PI * 2));
+        }
+
+        public float LerpEllipseZ(long timeMs)
+        {
+            return (VerticalAxisZ * Mathf.Sin((timeMs / DurationMs) * Mathf.PI * 2));
+        }
+
     }
 }

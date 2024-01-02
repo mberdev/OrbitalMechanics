@@ -14,7 +14,8 @@ namespace Assets.src.meshes
 
         public static GameObject CreateSunMesh(string id, JsonMesh meshDefinition)
         {
-            var diameter = MeshConverter.ToSun(meshDefinition, id);
+            // TODO: we should pass parsed parameters instead of raw json
+            var diameter = MeshJsonConverter.ToSun(meshDefinition, id);
 
             var o = UnityEngine.Object.Instantiate(Root.Instance.sunPrefab);
 
@@ -29,7 +30,9 @@ namespace Assets.src.meshes
 
         public static GameObject CreateSphereMesh(string id, JsonMesh meshDefinition)
         {
-            var (diameter, color) = MeshConverter.ToSphere(meshDefinition, id);
+            // TODO: we should pass parsed parameters instead of raw json
+            var (diameter, color) = MeshJsonConverter.ToSphere(meshDefinition, id);
+
             // (TODO : nicer meshes)
             var mesh = GameObject.CreatePrimitive(PrimitiveType.Sphere);
 

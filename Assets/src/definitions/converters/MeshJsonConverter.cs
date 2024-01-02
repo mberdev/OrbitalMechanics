@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Assets.src.definitions.converters
 {
-    internal class MeshConverter
+    internal class MeshJsonConverter
     {
         public static (float diameter, string color) ToSphere(JsonMesh mesh, string id)
         {

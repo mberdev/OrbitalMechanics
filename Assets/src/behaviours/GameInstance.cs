@@ -111,18 +111,19 @@ public class GameInstance : MonoBehaviour
         mesh.name = $"{id}-mesh";
     }
 
-    public static void Create(JsonDefinitionRoot definition)
+    public static GameInstance Create(JsonDefinitionRoot definition)
     {
         // For now, only one game instance at all times.
         // In the future, maybe one per player (multiplayer)
         var id = 0;
         var o = new GameObject($"GameInstance_{id}");
         o.transform.SetParent(Root.Instance.transform);
-        o.AddComponent<GameInstance>();
-        o.AddComponent<UniverseTime>();
+        var gameInstance = o.AddComponent<GameInstance>();
+        var universeTime = o.AddComponent<UniverseTime>();
 
-        var gameInstance = o.GetComponent<GameInstance>();
-        //component.enabled = true; // needed?
+        //gameInstance.enabled = true; // needed?
         gameInstance.PopulateFromDefinition(definition);
+
+        return gameInstance;
     }
 }

@@ -1,9 +1,6 @@
+#nullable enable
+
 using Assets.src.definitions;
-using Assets.src.definitions.generator;
-using Assets.src.state2;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -16,6 +13,8 @@ public class Root : MonoBehaviour
     /// Singleton pattern
     /// </summary>
     public static Root Instance { get; private set; }
+
+    public static GameInstance? CurrentGameInstance { get; private set; }
 
     /// <summary>
     /// Assign this in the editor with your favorite sun prefab.
@@ -34,7 +33,7 @@ public class Root : MonoBehaviour
         //DEBUG: generated definition
         //var definition = new UniverseGenerator().Generate();
 
-        CreateGameInstance(definition);
+        CurrentGameInstance = GameInstance.Create(definition);
     }
 
     private void Start()
@@ -42,10 +41,7 @@ public class Root : MonoBehaviour
         
     }
 
-    private void CreateGameInstance(JsonDefinitionRoot definition)
-    {
-        GameInstance.Create(definition);
-    }
+
 
     // Update is called once per frame
     void Update()

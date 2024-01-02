@@ -1,6 +1,7 @@
 #nullable enable
 
 using Assets.src.definitions;
+using Assets.src.definitions.generator;
 using UnityEngine;
 
 
@@ -28,10 +29,10 @@ public class Root : MonoBehaviour
         Instance = this;
 
         var definitions = new DefinitionsLoader().LoadAllDefinitionsAsync().GetAwaiter().GetResult();
-        var definition = definitions[0]; // TODO : ability to choose which.
+        //var definition = definitions[0]; // TODO : ability to choose which.
 
-        //DEBUG: generated definition
-        //var definition = new UniverseGenerator().Generate();
+        //FOR DEBUG: generated definition
+        var definition = new UniverseGenerator().Generate();
 
         CurrentGameInstance = GameInstance.Create(definition);
     }

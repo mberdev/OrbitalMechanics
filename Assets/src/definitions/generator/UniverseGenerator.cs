@@ -85,8 +85,13 @@ namespace Assets.src.definitions.generator
             }
 
             var standardExcentricity = 0.3f;
+            var standardDurationSeconds = 10;
 
             var parentDiameter = float.Parse(parent.Mesh.Params["diameter"]);
+
+            var standardPeriapsis = parentDiameter * 2.0f;
+            var standardApoasis = parentDiameter * 6.0f;
+
             var diameterRatio = 6.0f;
             var diameter = (parentDiameter / diameterRatio);
 
@@ -103,12 +108,18 @@ namespace Assets.src.definitions.generator
                 var randomSemiMajor = semiMajor + RandomPercent(semiMajor, 300); // add 0 to 300%
 
                 var randomExcentricity = standardExcentricity + RandomPercent(standardExcentricity, 100); // somewhere between 0.3 and 0.6?
+                var randomDurationSeconds = standardDurationSeconds + RandomPercent(standardDurationSeconds, 300);
+                var randomPeriapsis = standardPeriapsis + RandomPercent(standardPeriapsis, 300);
+                var randomApoapsis = randomPeriapsis + RandomPercent(standardApoasis, 300);
+
+
 
                 var child = new JsonDefinitionNode();
                 child.Id = $"{name}{i}";
                 child.FixedOrbitFunctions = new IOrbitFunction[]
                 {
-                    MakeKepler(child.Id, i, randomSemiMajor, meanLongitude, randomExcentricity),
+                    //MakeKepler(child.Id, i, randomSemiMajor, meanLongitude, randomExcentricity),
+                    MakeLagueKepler(child.Id, i, randomPeriapsis, randomApoapsis, (int)randomDurationSeconds)
                 };
 
                 var color = RandomColor();
@@ -154,6 +165,22 @@ namespace Assets.src.definitions.generator
                 longitudeOfAscendingNode: 10,
                 argumentOfPeriapsis: 10,
                 meanLongitude                
+            );
+        }
+
+        private static LagueKeplerOrbitFunction MakeLagueKepler(string id, int index, float periapsis, float apoapsis, int durationSeconds)
+        {
+
+            return new LagueKeplerOrbitFunction(
+
+                id: $"{id}Kepler{index}",
+                periapsis,
+                apoapsis,
+                durationSeconds,
+
+                offsetX: null,
+                offsetY: null,
+                offsetZ: null
             );
         }
     }

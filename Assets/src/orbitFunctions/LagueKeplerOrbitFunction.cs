@@ -85,7 +85,6 @@ namespace Assets.src.orbitFunctions
         public float X_FromAngleRadiants(Vector2 centreOfMass, double angleRadiants)
         {
             var ellipseCenterX = centreOfMass.x + LinearEccentricity;
-            //EllipseCenterY = centreOfMass.y;
             var x = SemiMajorLength * Math.Cos(angleRadiants) + ellipseCenterX;
             //if (x > float.MaxValue)
             //{

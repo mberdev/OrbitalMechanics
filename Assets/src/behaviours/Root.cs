@@ -1,4 +1,5 @@
 using Assets.src.definitions;
+using Assets.src.definitions.generator;
 using Assets.src.state2;
 using System;
 using System.Collections;
@@ -29,6 +30,10 @@ public class Root : MonoBehaviour
 
         var definitions = new DefinitionsLoader().LoadAllDefinitionsAsync().GetAwaiter().GetResult();
         var definition = definitions[0]; // TODO : ability to choose which.
+
+        //DEBUG: generated definition
+        //var definition = new UniverseGenerator().Generate();
+
         CreateGameInstance(definition);
     }
 

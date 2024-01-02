@@ -55,7 +55,10 @@ public class FixedOrbitTimeTracker : MonoBehaviour, ITimeTracker
                     var kepler = (KeplerOrbitFunction)function;
                     offset += kepler.Offset;
                     // TODO: Snapshot3D
-                    var keplerSnapshot = new Kepler.Snapshot2D(kepler.Kepler, timeMs);
+                    //TEST ONLY!
+                    long slowTime = timeMs / 10;
+                    //-TEST ONLY!
+                    var keplerSnapshot = new Kepler.Snapshot2D(kepler.Kepler, /* timeMs*/ slowTime);
                     offset += new Vector3(
                         keplerSnapshot.X,
                         0.0f,

@@ -54,11 +54,11 @@
                                 "offsetX": 0,
                                 "offsetY": 0,
                                 "offsetZ": 0,
-                                "params": {
+
                                     "horizontalAxisX" : 35.0,
                                     "verticalAxisZ" : 15.0,
                                     "durationMs" : 20000
-                                }
+                                
                             }
                         ],
                         "children": [
@@ -81,11 +81,11 @@
                                         "offsetX": 0,
                                         "offsetY": 0,
                                         "offsetZ": 0,
-                                        "params": {
+
                                             "horizontalAxisX" : 3.0,
                                             "verticalAxisZ" : 1.5,
                                             "durationMs" : 5000
-                                        }
+                                        
                                     }
                                 ]
                             }
@@ -111,14 +111,14 @@
                                 "offsetX": 0,
                                 "offsetY": 0,
                                 "offsetZ": 0,
-                                "params": {
+                                    "orbiterMass": 10.0,
                                     "semiMajorAxis" : 40.0,
                                     "excentricity" : 0.5,
                                     "inclination" : 0.0,
                                     "longitudeOfAscendingNode" : 10.0,
                                     "argumentOfPeriapsis" : 10.0,
                                     "meanLongitude" : 10.0
-                                }
+                                
                             }
                         ],
                         "children": []

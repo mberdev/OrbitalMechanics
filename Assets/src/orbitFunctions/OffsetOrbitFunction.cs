@@ -1,8 +1,10 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using UnityEngine;
 
 namespace Assets.src.orbitFunctions
@@ -10,14 +12,20 @@ namespace Assets.src.orbitFunctions
     internal class OffsetOrbitFunction : IOrbitFunction
     {
         public string Id { get; }
-        public Vector3 Offset { get; }
+        public float? OffsetX { get; }
+        public float? OffsetY { get; }
+        public float? OffsetZ { get; }
 
-        public string Type => "OFFSET";
+        public const string StaticType = "OFFSET";
+        public string Type => StaticType;
 
-        public OffsetOrbitFunction(string id, Vector3 offset)
+        [JsonConstructor]
+        public OffsetOrbitFunction(string id, float? offsetX = null, float? offsetY = null, float? offsetZ = null)
         {
             Id = id;
-            Offset = offset;
+            OffsetX = offsetX;
+            OffsetY = offsetY;
+            OffsetZ = offsetZ;
         }
 
     }

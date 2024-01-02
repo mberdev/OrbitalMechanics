@@ -2,10 +2,12 @@ using Assets.src.definitions;
 using Assets.src.definitions.converters;
 using Assets.src.definitions.tree;
 using Assets.src.meshes;
+using Assets.src.orbitFunctions;
 using Assets.src.state2;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class GameInstance : MonoBehaviour
@@ -47,24 +49,25 @@ public class GameInstance : MonoBehaviour
             (JsonDefinitionNode definition, GameObject parent) =>
                 {
                     var o = new GameObject(definition.Id);
-
                     o.transform.SetParent(parent.transform);
+
+                    // Add parent functions (we work cumulatively)
+                    var allOrbitFunctions = FixedOrbitTimeTracker.GetOrbitFunctions(parent).ToList();
 
                     // TODO: also do "non-fixed" functions (if that's a thing?)
                     //       Check if there's a conflict with fixed functions.
-                    if (definition.FixedOrbitFunctions != null)
+                    if ((definition.FixedOrbitFunctions?.Length ?? 0) > 0)
                     {
-                        o.AddComponent<FixedOrbitTimeTracker>();
+                        var fixedOrbitTimeTracker = o.AddComponent<FixedOrbitTimeTracker>();
 
-                        // Add own functions
-                        var fixedOrbitTimeTracker = o.GetComponent<FixedOrbitTimeTracker>();
-                        fixedOrbitTimeTracker.AddFixedOrbitFunctions(definition.FixedOrbitFunctions);
-                        
+                        // Add own fixed functions
+                        allOrbitFunctions.AddRange(definition.FixedOrbitFunctions);
+
+                        // A bit expensive.
+                        fixedOrbitTimeTracker.FixedOrbitFunctions = allOrbitFunctions.ToArray();
+
                         // Make the universe track this object.
                         universeTime.AddTimeTracker(fixedOrbitTimeTracker);
-
-                        // Compile ancestors functions
-                        fixedOrbitTimeTracker.CompileFixedOrbitFunctions();
 
                         // Add mesh
                         var meshDefinition = definition.Mesh;
@@ -81,8 +84,6 @@ public class GameInstance : MonoBehaviour
 
                     //}
 
-                    //TODO : Add all behaviours
-                    // ..
 
                     // pass o down to children
                     return o;

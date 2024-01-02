@@ -1,4 +1,6 @@
-﻿using System;
+﻿#nullable enable
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +13,8 @@ namespace Assets.src.orbitFunctions
     {
         public string Id { get; }
         public string Type { get; }
-        public Vector3 Offset { get; }
+        public float? OffsetX { get; }
+        public float? OffsetY { get; }
+        public float? OffsetZ { get; }
     }
 }

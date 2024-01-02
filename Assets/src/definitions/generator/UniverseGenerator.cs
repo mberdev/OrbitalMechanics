@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.src.orbitFunctions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -26,11 +27,11 @@ namespace Assets.src.definitions.generator
             var universe = new JsonDefinitionNode();
             universe.Id = "universe";
             universe.Mesh = null;
-            universe.FixedOrbitFunctions = new List<JsonFixedOrbitFunction>();
+            universe.FixedOrbitFunctions = null;
 
             root.Universe = universe;
             JsonDefinitionNode sun = MakeSun(diameter: 5.0f);
-            universe.Children = new List<JsonDefinitionNode>() { sun };
+            universe.Children = new JsonDefinitionNode[] { sun };
 
             GenerateDepth(sun, depth: 1);
 
@@ -41,9 +42,9 @@ namespace Assets.src.definitions.generator
         {
             var sun = new JsonDefinitionNode();
             sun.Id = "sun";
-            sun.FixedOrbitFunctions = new List<JsonFixedOrbitFunction>()
+            sun.FixedOrbitFunctions = new IOrbitFunction[]
             {
-                MakeOffset("sun", 0),
+                MakeOffset("sun", 0)
             };
             AddSunMesh(sun, diameter);
             return sun;
@@ -105,7 +106,7 @@ namespace Assets.src.definitions.generator
 
                 var child = new JsonDefinitionNode();
                 child.Id = $"{name}{i}";
-                child.FixedOrbitFunctions = new List<JsonFixedOrbitFunction>()
+                child.FixedOrbitFunctions = new IOrbitFunction[]
                 {
                     MakeKepler(child.Id, i, randomSemiMajor, meanLongitude, randomExcentricity),
                 };
@@ -113,7 +114,7 @@ namespace Assets.src.definitions.generator
                 var color = RandomColor();
                 AddSphereMesh(child, randomDiameter, color);
                 return child;
-            }).ToList();
+            }).ToArray();
 
         }
 
@@ -130,32 +131,30 @@ namespace Assets.src.definitions.generator
             return new Color(r, g, b, 1.0f);
         }
 
-        private static JsonFixedOrbitFunction MakeOffset(string id, int index)
+        private static OffsetOrbitFunction MakeOffset(string id, int index)
         {
-            return new JsonFixedOrbitFunction()
-            {
-                Id = $"{id}Offset{index}",
-                Type = "OFFSET"
-            };
+            return new OffsetOrbitFunction(id: $"{id}Offset{index}");
+
         }
 
-        private static JsonFixedOrbitFunction MakeKepler(string id, int index, float semiMajor, long meanLongitude, float excentricity)
+        private static KeplerOrbitFunction MakeKepler(string id, int index, float semiMajor, long meanLongitude, float excentricity)
         {
 
-            return new JsonFixedOrbitFunction()
-            {
-                Id = $"{id}Kepler{index}",
-                Type = "KEPLER",
-                Params = new Dictionary<string, string>()
-                {
-                    { "semiMajorAxis", semiMajor.ToString() },
-                    { "excentricity", $"{excentricity}" },
-                    { "inclination", "0.0" },
-                    { "longitudeOfAscendingNode", "10.0" },
-                    { "argumentOfPeriapsis", "10.0" },
-                    { "meanLongitude", $"{meanLongitude}" },
-                }
-            };
+            return new KeplerOrbitFunction(
+            
+                id: $"{id}Kepler{index}",
+                offsetX: null,
+                offsetY: null,
+                offsetZ: null,
+                orbiterMass: 10.0f, // TODO : decide.
+
+                semiMajorAxis: semiMajor,
+                excentricity,
+                inclination: 0,
+                longitudeOfAscendingNode: 10,
+                argumentOfPeriapsis: 10,
+                meanLongitude                
+            );
         }
     }
 }

@@ -1,3 +1,4 @@
+using Assets.src.definitions.tree.jsonConverters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System.Linq;
@@ -20,8 +21,11 @@ namespace Assets.src.definitions
                     ContractResolver = new DefaultContractResolver
                     {
                         NamingStrategy = new CamelCaseNamingStrategy()
-                    }
+                    },
                 };
+
+                // Custom converters
+                settings.Converters.Add(new FixedOrbitFunctionsArrayConverter());
 
                 return JsonConvert.DeserializeObject<JsonDefinitionRoot>(data, settings);
             }).ToArray();

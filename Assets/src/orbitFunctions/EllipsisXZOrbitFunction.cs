@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,19 +13,33 @@ namespace Assets.src.orbitFunctions
         // TODO: Start time offset
 
         public string Id { get; }
-        public Vector3 Offset { get; }
+        public float? OffsetX { get; }
+        public float? OffsetY { get; }
+        public float? OffsetZ { get; }
         public float HorizontalAxisX { get; }
         public float VerticalAxisZ { get; }
         public float DurationMs { get; }
 
-        public string Type => "ELLIPSIS_XZ";
+        public const string StaticType = "ELLIPSIS_XZ";
+        public string Type => StaticType;
 
-        public EllipsisXZOrbitFunction(string id, Vector3 offset, float horizontalAxisX, float horizontalAxisZ, float durationMs)
+        [JsonConstructor]
+        public EllipsisXZOrbitFunction(
+            string id,
+            float? offsetX, 
+            float? offsetY, 
+            float? offsetZ,
+            float horizontalAxisX, 
+            float verticalAxisZ, 
+            float durationMs)
         {
             Id = id;
-            Offset = offset;
+            OffsetX = offsetX;
+            OffsetY = offsetY;
+            OffsetZ = offsetZ;
+            
             HorizontalAxisX = horizontalAxisX;
-            VerticalAxisZ = horizontalAxisZ;
+            VerticalAxisZ = verticalAxisZ;
             DurationMs = durationMs;
         }
 

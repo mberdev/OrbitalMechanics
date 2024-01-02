@@ -1,11 +1,7 @@
 #nullable enable
 
-using Assets.src.definitions;
-using Assets.src.definitions.converters;
-using Assets.src.definitions.tree;
-using Assets.src.math;
+
 using Assets.src.orbitFunctions;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -17,13 +13,10 @@ public class FixedOrbitTimeTracker : MonoBehaviour, ITimeTracker
 {
     public long lastTimeUpdateMs { get; private set; } = -1;
 
-    // Same as FixedOrbitTimeTracker, but for all the parents, all the way to root.
-    public List<IOrbitFunction> AncestorsFixedOrbitFunctions { get; private set; } = new();
-    public List<IOrbitFunction> FixedOrbitFunctions { get; private set; } = new();
+    // Both its own functions and its parent's functions, in order from root (parents) to leaf (this object).
+    public IOrbitFunction[] FixedOrbitFunctions { get; set; } = new IOrbitFunction[0];
 
-    // Not cached. That's the point.
-    public List<IOrbitFunction> AllFixedOrbitFunctions => AncestorsFixedOrbitFunctions.Concat(FixedOrbitFunctions).ToList();
-    
+
     // Start is called before the first frame update
     void Start()
     {
@@ -32,106 +25,55 @@ public class FixedOrbitTimeTracker : MonoBehaviour, ITimeTracker
 
     public void UpdateTime(long timeMs)
     {
+        this.transform.position = ProcessAllFunctions(timeMs);
+    }
+
+    // TODO : Do this with a compute shader.
+    private Vector3 ProcessAllFunctions(long timeMs)
+    {
         var offset = Vector3.zero;
 
         // TODO : do this computation with a shader.
-        foreach (var function in AllFixedOrbitFunctions)
+        foreach (var function in FixedOrbitFunctions)
         {
+            var fOffset = new Vector3(
+                function.OffsetX ?? 0.0f,
+                function.OffsetY ?? 0.0f,
+                function.OffsetZ ?? 0.0f
+            );
+
+            offset += fOffset;
+
             switch (function.Type)
             {
                 case "OFFSET":
-                    offset += ((OffsetOrbitFunction)function).Offset;
                     break;
                 case "ELLIPSIS_XZ":
                     var ellipsisXZ = (EllipsisXZOrbitFunction)function;
-                    offset += ellipsisXZ.Offset;
                     offset += new Vector3(
                         Ellipse_XZ.LerpEllipseX(timeMs, ellipsisXZ.HorizontalAxisX, ellipsisXZ.DurationMs),
-                        0.0f, 
+                        0.0f,
                         Ellipse_XZ.LerpEllipseZ(timeMs, ellipsisXZ.VerticalAxisZ, ellipsisXZ.DurationMs)
                     );
                     break;
                 case "KEPLER":
                     var kepler = (KeplerOrbitFunction)function;
-                    offset += kepler.Offset;
                     // TODO: Snapshot3D
                     //TEST ONLY!
                     long slowTime = timeMs / 10;
                     //-TEST ONLY!
-                    var keplerSnapshot = new Kepler.Snapshot2D(kepler.Kepler, /* timeMs*/ slowTime);
+                    var keplerSnapshot = new KeplerOrbitFunction.Snapshot2D(kepler, /* timeMs*/ slowTime);
                     offset += new Vector3(
                         keplerSnapshot.X,
                         0.0f,
-                        keplerSnapshot.Z                        
+                        keplerSnapshot.Z
                     );
                     break;
-                default:
-                    Debug.LogError($"{nameof(FixedOrbitTimeTracker)}: Unknown function type {function.Type} for function {function.Id}");
-                    break;
-            }
-        }
 
-        this.transform.position = offset;
-        
-    }
-
-    /// <summary>
-    /// Adds the entire chain of functions all the way up to "root" (the GameInstance, really),
-    /// so that we can calculate the position without any "dependency" to other nodes.
-    /// </summary>
-    public void CompileFixedOrbitFunctions()
-    {
-        // Safety : avoid infinite loop (?)
-        if (this.transform.parent == this.transform.root)
-        {
-            Debug.LogError($"{nameof(FixedOrbitTimeTracker)}: Object {name} should be descending from of a {nameof(GameInstance)} but instead was found at root!");
-            Application.Quit(); // TODO: better error handling.
-        }
-
-        var parent = this.transform.parent;
-        var parentAsTimeTracker = parent.GetComponent<FixedOrbitTimeTracker>();
-
-        // "root" (GameInstance, really)
-        if (parentAsTimeTracker == null)
-        {
-            return;
-        }
-
-        // Add parent's ancestor functions and parent's own functions
-        AncestorsFixedOrbitFunctions.AddRange(parentAsTimeTracker.AncestorsFixedOrbitFunctions);
-        AncestorsFixedOrbitFunctions.AddRange(parentAsTimeTracker.FixedOrbitFunctions); 
-    
-        // Debug only
-        Debug.Log($"{nameof(FixedOrbitTimeTracker)}: Object {name}'s functions compiled. Functions are {string.Join(", ", AllFixedOrbitFunctions.Select(f => f.Id))}");
-    }
-        
-    public void AddFixedOrbitFunctions(List<JsonFixedOrbitFunction> functions)
-    {
-        foreach (var function in functions)
-        {
-            if (string.IsNullOrEmpty(function.Id))
-            {
-                Debug.LogError($"{nameof(FixedOrbitTimeTracker)}: Every function must have a unique Id! Object {name}");
-                Application.Quit(); // TODO: better error handling.
-            }
-
-            if (string.IsNullOrEmpty(function.Type))
-            {
-                Debug.LogError($"{nameof(FixedOrbitTimeTracker)}: Type is null or empty for function {function.Id}");
-            }
-
-            switch(function.Type)
-            {
-                case "OFFSET":
-                    FixedOrbitFunctions.Add(FixedOrbitFunctionsConverter.ToOffsetFunction(function));
-                    break;
-
-                case "ELLIPSIS_XZ":
-                    FixedOrbitFunctions.Add(FixedOrbitFunctionsConverter.ToEllipsisXZFunction(function));
-                    break;
-
-                case "KEPLER":
-                    FixedOrbitFunctions.Add(FixedOrbitFunctionsConverter.ToKeplerFunction(function));
+                case "LAGUE_KEPLER":
+                    var lagueKepler = (LagueKeplerOrbitFunction)function;
+                    //TODO
+                    throw new System.NotImplementedException();
                     break;
 
                 default:
@@ -139,6 +81,24 @@ public class FixedOrbitTimeTracker : MonoBehaviour, ITimeTracker
                     break;
             }
         }
+        return offset;
     }
+
+    // Helper to safely get the orbit functions from any kind of game object
+    public static IOrbitFunction[] GetOrbitFunctions(GameObject o)
+    {
+        var asOrbitTimeTracker = o.GetComponent<FixedOrbitTimeTracker>();
+        if (asOrbitTimeTracker != null)
+        {
+            return asOrbitTimeTracker.FixedOrbitFunctions;
+        } else
+        {
+            // Maybe we've reached the root, or whatever other reason why we're no longer looking
+            // at actual time trackers.
+            return new IOrbitFunction[0];
+        }
+    }
+
+
 
 }

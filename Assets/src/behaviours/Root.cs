@@ -23,12 +23,27 @@ public class Root : MonoBehaviour
     /// </summary>
     public GameObject sunPrefab;
 
-    public delegate void OnGameCreated(GameInstance? instance, int count);
-    public OnGameCreated onGameCreated;
+    // TODO: instantiate entirely from code. Why does Unity make it so hard?
+    public ComputeShader orbitFunctionsComputeShader;
+
+    public delegate void OnGameInstanceCreated(GameInstance? instance, int count);
+    public OnGameInstanceCreated onGameInstanceCreated;
 
     void Awake()
     {
         Instance = this;
+
+        if (sunPrefab == null)
+        {
+            Debug.LogError("Missing sun prefab. Please assign it in the editor.");
+            Application.Quit(); // TODO: better error handling.
+        }
+
+        if (orbitFunctionsComputeShader == null)
+        {
+            Debug.LogError("Missing orbit functions compute shader. Please assign it in the editor.");
+            Application.Quit(); // TODO: better error handling.
+        }
     }
 
     private void Start()
@@ -40,13 +55,14 @@ public class Root : MonoBehaviour
     private void OnLoadDefinitions()
     {
         var definitions = new DefinitionsLoader().LoadAllDefinitionsAsync().GetAwaiter().GetResult();
-        //var definition = definitions[0]; // TODO : ability to choose which.
+        //var (definition, count) = (definitions[0], 10); ; // TODO : ability to choose which.
+        //var (definition, count) = (definitions[1], 2); // TODO : ability to choose which.
 
         //FOR DEBUG: generated definition
         var (definition, count) = new UniverseGenerator().Generate();
 
         CurrentGameInstance = GameInstance.Create(definition);
-        onGameCreated?.Invoke(CurrentGameInstance, count);
+        onGameInstanceCreated?.Invoke(CurrentGameInstance, count);
     }
 
     // Update is called once per frame

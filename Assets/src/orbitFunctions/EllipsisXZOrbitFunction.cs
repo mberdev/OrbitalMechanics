@@ -20,8 +20,10 @@ namespace Assets.src.orbitFunctions
         public float VerticalAxisZ { get; }
         public float DurationMs { get; }
 
-        public const string StaticType = "ELLIPSIS_XZ";
-        public string Type => StaticType;
+        public OrbitTypes TypeEnum => OrbitTypes.ELLIPSIS_XZ;
+
+        public const string StaticTypeStr = nameof(OrbitTypes.ELLIPSIS_XZ);
+        public string Type => StaticTypeStr;
 
         [JsonConstructor]
         public EllipsisXZOrbitFunction(

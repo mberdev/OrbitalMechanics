@@ -1,14 +1,129 @@
 // Each #kernel tells which function to compile; you can have many kernels
 #pragma kernel CSMain
 
-// Create a RenderTexture with enableRandomWrite flag and set it
-// with cs.SetTexture
-RWTexture2D<float4> Result;
+//+DEBUG ONLY FOR DEBUG - COMMENT OUT!
+#pragma enable_d3d11_debug_symbols
+//-DEBUG
 
-[numthreads(8,8,1)]
+// Represents all the functions at once (for now, primitive union)
+// Must match exactly CSOrbitFunction.cs
+struct CSOrbitFunction
+{
+    int type; // from enum OrbitTypes
+    
+    // shared by all types
+    float offsetX;
+    float offsetY;
+    float offsetZ;
+    
+    // store result
+    float outX;
+    float outY;
+    float outZ;    
+    
+    // if the type is LAGUE_KEPLER
+    float periapsis;
+    float apoapsis;
+    int durationSeconds;
+    
+    // linked list
+    int previous;
+    
+    int id;
+};
+
+
+RWStructuredBuffer<CSOrbitFunction> functions;
+int timeMs;
+
+
+
+void lagueKeplerXZ(uint3 id : SV_DispatchThreadID);
+
+
+[numthreads(1024,1,1)] // dimensions
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
-    // TODO: insert actual code here!
+    
+    functions[id.x].outX = functions[id.x].offsetX;
+    functions[id.x].outY = functions[id.x].offsetY;
+    functions[id.x].outZ = functions[id.x].offsetZ;
+    
+    switch (functions[id.x].type)
+    {
+        // OrbitTypes.OFFSET
+        case 0:
+            
+            break;
+        // ELLIPSIS_XZ = 1,
+        case 1:
+            
+            break;
+        // KEPLER = 2,
+        case 2:
+            
+            break;
+        // LAGUE_KEPLER = 3
+        case 3:
+            lagueKeplerXZ(id);
+            break;
+        default:
+            return;
+        
+    }
+}
 
-    Result[id.xy] = float4(id.x & id.y, (id.x & 15)/15.0, (id.y & 15)/15.0, 0.0);
+float SemiMajorLength;
+float LinearEccentricity;
+float Eccentricity;
+float SemiMinorLength;
+float RadiantsPerSecond;
+
+//float PI = 3.1415926535897f; // For some reason, always 0.0 in the code below???
+
+void lagueKeplerXZ(uint3 id : SV_DispatchThreadID)
+{
+    float PI = 3.1415926535897f;
+
+    // semi-constants. TODO: Move out of shader, calculate once, pass as parameters.
+    SemiMajorLength = (functions[id.x].periapsis + functions[id.x].apoapsis) / 2.0;
+    LinearEccentricity = SemiMajorLength - functions[id.x].periapsis; // distance between center of ellipse and focus
+    Eccentricity = LinearEccentricity / SemiMajorLength; // from circle to increasingly elliptical
+
+    // 0 is a perfect circle, 1 turns the ellipse into a parabola
+    if (Eccentricity < 0 || Eccentricity >= 1.0)
+    {
+        // TODO: proper error handling.
+        return;
+    }
+    
+
+    SemiMinorLength = sqrt((SemiMajorLength * SemiMajorLength) - (LinearEccentricity * LinearEccentricity));
+
+    RadiantsPerSecond = (2.0 * PI) / ((float) functions[id.x].durationSeconds);
+    
+    //TODO: real value
+    float centreOfMassX = 0.0;
+    float centreOfMassZ = 0.0;
+    
+    //actual calculations
+    float angleRadiants = RadiantsPerSecond * ((float)timeMs / 1000.0);
+    
+    float ellipseCenterX = centreOfMassX + LinearEccentricity;
+    float x = SemiMajorLength * cos(angleRadiants) + ellipseCenterX;
+    
+    float ellipseCenterZ = centreOfMassZ;
+    float z = SemiMinorLength * sin(angleRadiants) + ellipseCenterZ;
+
+    // store results
+    functions[id.x].outX = functions[id.x].outX + (float)x;
+    functions[id.x].outY = functions[id.x].outY + (float)0;
+    functions[id.x].outZ = functions[id.x].outZ + (float)z;
+    
+    
+    //DEBUG
+    //functions[id.x].outX = 2.0 * PI;
+    //functions[id.x].outY = 2.0 * PI;
+    //functions[id.x].outZ = (2.0 * PI) / ((float) functions[id.x].durationSeconds);
+    //-DEBUG
 }

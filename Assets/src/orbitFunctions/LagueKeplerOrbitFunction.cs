@@ -4,26 +4,39 @@ using UnityEngine;
 
 namespace Assets.src.orbitFunctions
 {
-    public class LagueKeplerOrbitFunction : IOrbitFunction
+    // Will be used by compute shaders too
+    internal interface ILagueKeplerOrbitFunction
+    {
+        public float? OffsetX { get; }
+        public float? OffsetY { get; }
+        public float? OffsetZ { get; }
+
+        public float Periapsis { get; }
+        public float Apoapsis { get; }
+        public int DurationSeconds { get; }
+    }
+
+    public class LagueKeplerOrbitFunction : IOrbitFunction, ILagueKeplerOrbitFunction
     {
         public string Id { get; }
 
         public float? OffsetX { get; }
         public float? OffsetY { get; }
         public float? OffsetZ { get; }
-        public double Periapsis { get; }
-        public double Apoapsis { get; }
+        public float Periapsis { get; }
+        public float Apoapsis { get; }
         public int DurationSeconds { get; }
 
-        public const string StaticType = "LAGUE_KEPLER";
+        public OrbitTypes TypeEnum => OrbitTypes.LAGUE_KEPLER;
 
-        public string Type => StaticType;
+        public const string StaticTypeStr = nameof(OrbitTypes.LAGUE_KEPLER);
+        public string Type => StaticTypeStr;
 
         [JsonConstructor]
         public LagueKeplerOrbitFunction(
             string id,
-            double periapsis, 
-            double apoapsis,
+            float periapsis, 
+            float apoapsis,
             int durationSeconds,
             float? offsetX = null,
             float? offsetY = null,

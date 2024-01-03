@@ -1,6 +1,9 @@
+using Assets.src.computeShaders;
+using Assets.src.computeShaders.converters;
 using Assets.src.definitions;
 using Assets.src.definitions.converters;
 using Assets.src.definitions.tree;
+using Assets.src.extensions;
 using Assets.src.meshes;
 using Assets.src.orbitFunctions;
 using Assets.src.state2;
@@ -8,6 +11,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public class GameInstance : MonoBehaviour
@@ -25,6 +29,13 @@ public class GameInstance : MonoBehaviour
 
     }
 
+    //// Helper class to help traverse the tree
+    //class ParentNode
+    //{
+    //    public GameObject parent;
+    //    public int parentLastFunctionIndex;
+    //}
+
     public void PopulateFromDefinition(JsonDefinitionRoot definition)
     {
         // Already generated before
@@ -37,59 +48,48 @@ public class GameInstance : MonoBehaviour
         _definition = definition;
 
         var gameInstance = this.gameObject;
-        var universeTime = gameInstance.GetComponent<UniverseTime>();
-        if ( universeTime == null )
-        {
-            Debug.LogError($"{nameof(GameInstance)} {gameInstance.name} missig behaviour {nameof(UniverseTime)}");
-            Application.Quit(); // TODO: better error handling.
-        }
+        var universeTime = gameInstance.SafeGetComponent<UniverseTime>();
+        var globalTimeTracker = gameInstance.SafeGetComponent<FixedOrbitsTimeTracker>();
+
+        globalTimeTracker.FgManager = new();
+        var manager = globalTimeTracker.FgManager;
+        manager.StartAddingFunctions();
 
         DefinitionsTraversal.Traverse_PassParent<GameObject>(
             _definition.Universe, 
-            (JsonDefinitionNode definition, GameObject parent) =>
+            (JsonDefinitionNode definition, GameObject parent, int depth) =>
                 {
                     var o = new GameObject(definition.Id);
                     o.transform.SetParent(parent.transform);
 
-                    // Add parent functions (we work cumulatively)
-                    var allOrbitFunctions = FixedOrbitTimeTracker.GetOrbitFunctions(parent).ToList();
+                    var parentTimeTracker = parent.GetComponent<FixedOrbitTimeTracker>();
+                    var fixedOrbitTimeTracker = o.AddComponent<FixedOrbitTimeTracker>();
 
-                    // TODO: also do "non-fixed" functions (if that's a thing?)
-                    //       Check if there's a conflict with fixed functions.
-                    if ((definition.FixedOrbitFunctions?.Length ?? 0) > 0)
+                    // Make the universe track this object too.
+                    universeTime.AddTimeTracker(fixedOrbitTimeTracker);
+
+                    var functions = definition.FixedOrbitFunctions ?? new IOrbitFunction[0];
+                    fixedOrbitTimeTracker.FixedOrbitFunctions = CSOrbitFunctionsConverter.Convert(functions);
+
+                    // Create group
+                    manager.AddGgroup(fixedOrbitTimeTracker, parentTimeTracker, depth);
+
+                    // Add mesh
+                    var meshDefinition = definition.Mesh;
+                    if (meshDefinition != null)
                     {
-                        var fixedOrbitTimeTracker = o.AddComponent<FixedOrbitTimeTracker>();
-
-                        // Add own fixed functions
-                        allOrbitFunctions.AddRange(definition.FixedOrbitFunctions);
-
-                        // A bit expensive.
-                        fixedOrbitTimeTracker.FixedOrbitFunctions = allOrbitFunctions.ToArray();
-
-                        // Make the universe track this object.
-                        universeTime.AddTimeTracker(fixedOrbitTimeTracker);
-
-                        // Add mesh
-                        var meshDefinition = definition.Mesh;
-                        if (meshDefinition != null)
-                        {
-                            AddMesh(o, definition.Id, meshDefinition);
-                        }
+                        AddMesh(o, definition.Id, meshDefinition);
                     }
 
 
-                    // TODO: also do "non-fixed" functions (if that's a thing?)
-                    //       Check if there's a conflict with fixed functions.
-                    //else if (...) {
-
-                    //}
-
-
-                    // pass o down to children
                     return o;
                 },
-            gameInstance
+            gameInstance,
+            depth: 0
         );
+
+        manager.EndAddingFunctions();
+
     }
 
     private void AddMesh(GameObject o, string id, JsonMesh meshDefinition)
@@ -120,7 +120,8 @@ public class GameInstance : MonoBehaviour
         var o = new GameObject($"GameInstance_{id}");
         o.transform.SetParent(Root.Instance.transform);
         var gameInstance = o.AddComponent<GameInstance>();
-        var universeTime = o.AddComponent<UniverseTime>();
+        o.AddComponent<UniverseTime>();
+        o.AddComponent<FixedOrbitsTimeTracker>(); // the global time tracker
 
         //gameInstance.enabled = true; // needed?
         gameInstance.PopulateFromDefinition(definition);

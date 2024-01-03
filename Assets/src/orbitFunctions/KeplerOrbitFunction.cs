@@ -16,8 +16,10 @@ namespace Assets.src.orbitFunctions
         public float? OffsetY { get; }
         public float? OffsetZ { get; }
 
-        public const string StaticType = "KEPLER";
-        public string Type => StaticType;
+        public OrbitTypes TypeEnum => OrbitTypes.KEPLER;
+
+        public const string StaticTypeStr = nameof(OrbitTypes.KEPLER);
+        public string Type => StaticTypeStr;
 
         public static float GravitationConstant = 6.674f;
 

@@ -13,6 +13,8 @@ namespace Assets.src.orbitFunctions
     {
         public string Id { get; }
         public string Type { get; }
+        public OrbitTypes TypeEnum { get; }
+
         public float? OffsetX { get; }
         public float? OffsetY { get; }
         public float? OffsetZ { get; }

@@ -1,0 +1,39 @@
+{
+    "universe": {
+        "id": "universe01",
+        "displayName": "Simplest universe",
+        "description": "Just one object orbiting, for tests",
+        "mesh": null,
+        "fixedOrbitFunctions": [],
+        "children": [
+            {
+                "id": "planet_lague_kepler",
+                "displayName": "A single simple planet (Lague Kepler)",
+                "description": "...",
+                "mesh": {
+                    "type": "COLORED_SPHERE",
+                    "params": {
+                        "diameter": 2.0,
+                        "color": "#00FF00"
+                    }
+
+                },                          
+                "fixedOrbitFunctions": [
+                    {
+                        "id": "earthLagueKepler0",
+                        "type": "LAGUE_KEPLER",
+                        "offsetX": 0,
+                        "offsetY": 0,
+                        "offsetZ": 0,
+
+                            "periapsis": 10.0,
+                            "apoapsis": 40.0,
+                            "durationSeconds": 10.0
+                        
+                    }
+                ],
+                "children": []
+            }
+        ]
+    }
+}

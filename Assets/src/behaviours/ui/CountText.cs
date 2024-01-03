@@ -7,7 +7,7 @@ public class CountText : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Root.Instance.onGameCreated += OnInstanceCreated;
+        Root.Instance.onGameInstanceCreated += OnGameInstanceCreated;
     }
 
     // Update is called once per frame
@@ -16,7 +16,7 @@ public class CountText : MonoBehaviour
 
     }
 
-    private void OnInstanceCreated(GameInstance _, int count)
+    private void OnGameInstanceCreated(GameInstance _, int count)
     {
         var textControl = gameObject.GetComponent<TextMeshProUGUI>();
         textControl.text = $"Objects count: {count}";

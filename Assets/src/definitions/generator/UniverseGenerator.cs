@@ -17,7 +17,7 @@ namespace Assets.src.definitions.generator
 
         public string[] DepthNames { get; } = new string[] { "sun", "planet", "satellite", "asteroid" };
 
-        public int[] DepthCount = new int[] { 1, 10, 10, 10 };
+        public int[] DepthCount = new int[] { 1, 5, 10, 19 };
         public float[] OrbitSemiMajor = new float[] { 0.0f, 20.0f, 5.0f, 2.0f };
 
         public (JsonDefinitionRoot root, int count) Generate()

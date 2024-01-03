@@ -1,3 +1,4 @@
+using Assets.src.extensions;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -57,12 +58,19 @@ public class UniverseTime : MonoBehaviour
         // time is not frozen
         if (deltaMs != 0.0f)
         {
-            foreach (var timeTracker in TimeTrackers)
-            {
-                // TODO: this is actually a misuse of delta / current time.
-                // we should rely on something like speed/2. See https://www.youtube.com/watch?v=yGhfUcPjXuE
-                timeTracker.UpdateTime(CurrentTimeMs);
-            }
+            var globalTimeTracker = Root.Instance.GetComponentInChildren<FixedOrbitsTimeTracker>();
+
+            if (globalTimeTracker == null)
+                return;
+
+            globalTimeTracker.UpdateTime(CurrentTimeMs);
+
+            //foreach (var timeTracker in TimeTrackers)
+            //{
+            //    // TODO: this is actually a misuse of delta / current time.
+            //    // we should rely on something like speed/2. See https://www.youtube.com/watch?v=yGhfUcPjXuE
+            //    timeTracker.UpdateTime(CurrentTimeMs);
+            //}
         }
 
 

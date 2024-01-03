@@ -361,6 +361,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   sunPrefab: {fileID: 70908005195307435, guid: 467ffc014672fd8458602a5b9fee1cb5, type: 3}
+  orbitFunctionsComputeShader: {fileID: 7200000, guid: e567ee8d237a2864b9ab88479c9b53dc, type: 3}
 --- !u!1 &920226459
 GameObject:
   m_ObjectHideFlags: 0
@@ -429,8 +430,8 @@ Canvas:
   m_GameObject: {fileID: 920226459}
   m_Enabled: 1
   serializedVersion: 3
-  m_RenderMode: 0
-  m_Camera: {fileID: 0}
+  m_RenderMode: 1
+  m_Camera: {fileID: 963194227}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
@@ -584,7 +585,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 53.000015, y: -121}
+  m_AnchoredPosition: {x: 53, y: -121}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1334116313
@@ -732,7 +733,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 53.000015, y: -102}
+  m_AnchoredPosition: {x: 53, y: -102}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1478554878

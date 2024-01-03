@@ -1,6 +1,8 @@
 using Assets.src.definitions.tree.jsonConverters;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -28,6 +30,7 @@ namespace Assets.src.definitions
                 settings.Converters.Add(new FixedOrbitFunctionsArrayConverter());
 
                 return JsonConvert.DeserializeObject<JsonDefinitionRoot>(data, settings);
+
             }).ToArray();
 
         }

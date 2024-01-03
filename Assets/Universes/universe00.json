@@ -35,6 +35,7 @@
                     }
                 ],
                 "children": [
+/*
                     {
                         "id": "earth",
                         "displayName": "The Earth",
@@ -123,7 +124,7 @@
                         ],
                         "children": []
                     },
-
+*/
                     {
                         "id": "earth_lague_kepler",
                         "displayName": "The Earth (Lague Kepler)",
@@ -150,7 +151,38 @@
                                 
                             }
                         ],
-                        "children": []
+                        "children": [
+                            {
+                                "id": "moon_lague_kepler",
+                                "displayName": "The Moon (Lague Kepler)",
+                                "description": "...",
+                                "mesh": {
+                                    "type": "COLORED_SPHERE",
+                                    "params": {
+                                        "diameter": 0.4,
+                                        "color": "#777777"
+                                    }
+                
+                                },                                  
+                                "fixedOrbitFunctions": [
+                                    {
+                                        "id": "moonLagueKepler0",
+                                        "type": "LAGUE_KEPLER",
+                                        "offsetX": 0,
+                                        "offsetY": 0,
+                                        "offsetZ": 0,
+
+                                        "periapsis": 3.0,
+                                        "apoapsis": 7.0,
+                                        "durationSeconds": 5.0
+                                        
+                                    }
+                                ]
+                            }
+
+
+
+                        ]
                     }
                 ]
             }

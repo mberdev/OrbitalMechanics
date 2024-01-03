@@ -9,10 +9,10 @@ public class TimeText : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Root.Instance.onGameCreated += OnInstanceCreated;
+        Root.Instance.onGameInstanceCreated += OnGameInstanceCreated;
     }
 
-    private void OnInstanceCreated(GameInstance instance, int count)
+    private void OnGameInstanceCreated(GameInstance instance, int count)
     {
         _universeTime = instance.gameObject.GetComponent<UniverseTime>();
     }

@@ -42,28 +42,28 @@ namespace Assets.src.definitions.tree.jsonConverters
                     IOrbitFunction? f;
                     switch (typeToken.Value<string>())
                     {
-                        case OffsetOrbitFunction.StaticType:
+                        case OffsetOrbitFunction.StaticTypeStr:
                             if (!TryDeserialize<OffsetOrbitFunction>(jo, serializer, out f))
                             {
                                 continue;
                             }
                             break;
 
-                        case EllipsisXZOrbitFunction.StaticType:
+                        case EllipsisXZOrbitFunction.StaticTypeStr:
                             if (!TryDeserialize<EllipsisXZOrbitFunction>(jo, serializer, out f))
                             {
                                 continue;
                             }
                             break;
 
-                        case KeplerOrbitFunction.StaticType:
+                        case KeplerOrbitFunction.StaticTypeStr:
                             if (!TryDeserialize<KeplerOrbitFunction>(jo, serializer, out f))
                             {
                                 continue;
                             }
                             break;
 
-                        case LagueKeplerOrbitFunction.StaticType:
+                        case LagueKeplerOrbitFunction.StaticTypeStr:
                             if (!TryDeserialize<LagueKeplerOrbitFunction>(jo, serializer, out f))
                             {
                                 continue;
